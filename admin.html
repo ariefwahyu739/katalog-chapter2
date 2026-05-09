@@ -115,6 +115,16 @@ tbody td { padding:12px 16px; font-size:11px; color:var(--soil); vertical-align:
 .form-textarea { resize:vertical; min-height:80px; }
 .form-note { font-size:9px; color:var(--dusty); margin-top:4px; letter-spacing:0.05em; }
 .img-preview { width:100%; aspect-ratio:3/4; background:var(--linen); display:flex; align-items:center; justify-content:center; margin-top:8px; overflow:hidden; max-height:200px; }
+.upload-area { border:2px dashed rgba(139,99,72,0.3); padding:20px; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--white); margin-top:8px; position:relative; }
+.upload-area:hover { border-color:var(--clay); background:var(--linen); }
+.upload-area.dragover { border-color:var(--clay); background:rgba(139,99,72,0.05); }
+.upload-area input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.upload-icon { font-size:28px; margin-bottom:8px; }
+.upload-text { font-size:10px; letter-spacing:0.1em; color:var(--clay); }
+.upload-sub { font-size:9px; color:var(--dusty); margin-top:4px; letter-spacing:0.05em; }
+.upload-progress { width:100%; height:3px; background:rgba(139,99,72,0.15); margin-top:10px; display:none; }
+.upload-progress-bar { height:100%; background:var(--clay); width:0%; transition:width 0.3s; }
+.upload-status { font-size:9px; color:var(--sage); letter-spacing:0.1em; margin-top:6px; display:none; }
 .img-preview img { width:100%; height:100%; object-fit:cover; }
 .img-placeholder { font-size:32px; opacity:0.3; }
 .toggle-wrap { display:flex; align-items:center; gap:12px; margin-top:4px; }
@@ -333,12 +343,23 @@ tbody td { padding:12px 16px; font-size:11px; color:var(--soil); vertical-align:
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Link Foto (dari ImgBB)</label>
-        <input class="form-input" type="url" id="fImg" placeholder="https://i.ibb.co/xxxxx/foto.jpg" oninput="previewImg()">
-        <div class="form-note">Upload foto ke imgbb.com → copy "Direct link" → paste di sini</div>
-        <div class="img-preview" id="imgPreview">
+        <label class="form-label">Foto Produk</label>
+        <div class="upload-area" id="uploadArea">
+          <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(this)">
+          <div class="upload-icon">📷</div>
+          <div class="upload-text">Tap untuk pilih foto dari galeri</div>
+          <div class="upload-sub">JPG, PNG, WEBP · Maks 10MB</div>
+          <div class="upload-progress" id="uploadProgress">
+            <div class="upload-progress-bar" id="uploadBar"></div>
+          </div>
+          <div class="upload-status" id="uploadStatus">✓ Foto berhasil diupload</div>
+        </div>
+        <div class="img-preview" id="imgPreview" style="margin-top:8px">
           <div class="img-placeholder">📷</div>
         </div>
+        <input type="hidden" id="fImg">
+        <div class="form-note" style="margin-top:6px">Atau paste link foto langsung:</div>
+        <input class="form-input" type="url" id="fImgUrl" placeholder="https://..." oninput="useUrlDirectly()" style="margin-top:6px">
       </div>
       <div class="form-group">
         <label class="form-label">Deskripsi Produk</label>
@@ -377,16 +398,21 @@ tbody td { padding:12px 16px; font-size:11px; color:var(--soil); vertical-align:
 
 <script>
 // ── CONFIG ──
-const API_KEY  = '$2a$10$.JOM.FmAI3dyZlI1hyaoeuy.HrVgrJOADvlhoG18XjjX7otX13UT.';
-const MASTER_KEY = '$2a$10$kq2DpBDamSmswiVF7dP.2ejCGnTnrz65N5MTF5iv/rUIuPyregieO';
-const BIN_ID  = '69fef9ad250b1311c325b1c5';
-const API_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
-const ADMIN_PASS = 'chaptertwo2024';
-const CAT_ICON = { tas:'👜', sepatu:'👟', aksesoris:'💍', baju:'👗', vintage:'🧥' };
+var API_KEY     = '$2a$10$.JOM.FmAI3dyZlI1hyaoeuy.HrVgrJOADvlhoG18XjjX7otX13UT.';
+var MASTER_KEY  = '$2a$10$kq2DpBDamSmswiVF7dP.2ejCGnTnrz65N5MTF5iv/rUIuPyregieO';
+var BIN_ID      = '69fef9ad250b1311c325b1c5';
+var API_URL     = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+var ADMIN_PASS  = 'chaptertwo2024';
+var CAT_ICON    = { tas:'👜', sepatu:'👟', aksesoris:'💍', baju:'👗', vintage:'🧥' };
 
-let allProducts = [];
-let deleteTargetId = null;
-let toastTimer;
+// ── CLOUDINARY CONFIG ──
+var CLOUD_NAME    = 'dej7r2oo5';
+var UPLOAD_PRESET = 'chapter-two';
+var CLOUD_URL     = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload';
+
+var allProducts = [];
+var deleteTargetId = null;
+var toastTimer;
 
 // ── LOGIN ──
 function doLogin() {
@@ -506,6 +532,10 @@ function openAddModal() {
   document.getElementById('fSize').value = '';
   document.getElementById('fBadge').value = '';
   document.getElementById('fImg').value = '';
+  document.getElementById('fImgUrl').value = '';
+  document.getElementById('uploadStatus').style.display = 'none';
+  document.getElementById('uploadProgress').style.display = 'none';
+  document.getElementById('uploadBar').style.width = '0%';
   document.getElementById('fDesc').value = '';
   document.getElementById('fTitip').classList.remove('on');
   document.getElementById('imgPreview').innerHTML = '<div class="img-placeholder">📷</div>';
@@ -527,14 +557,11 @@ function openEditModal(id) {
   document.getElementById('fSize').value = p.size !== '-' ? p.size : '';
   document.getElementById('fBadge').value = p.badge || '';
   document.getElementById('fImg').value = p.img || '';
+  document.getElementById('fImgUrl').value = p.img || '';
   document.getElementById('fDesc').value = p.desc || '';
   if (p.titip) document.getElementById('fTitip').classList.add('on');
   else document.getElementById('fTitip').classList.remove('on');
-  if (p.img) {
-    document.getElementById('imgPreview').innerHTML = '<img src="' + p.img + '" alt="">';
-  } else {
-    document.getElementById('imgPreview').innerHTML = '<div class="img-placeholder">📷</div>';
-  }
+  previewImg(p.img || null);
   document.getElementById('productModal').classList.add('show');
 }
 
