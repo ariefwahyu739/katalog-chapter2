@@ -377,7 +377,8 @@ tbody td { padding:12px 16px; font-size:11px; color:var(--soil); vertical-align:
 
 <script>
 // ── CONFIG ──
-const API_KEY = '$2a$10$.JOM.FmAI3dyZlI1hyaoeuy.HrVgrJOADvlhoG18XjjX7otX13UT.';
+const API_KEY  = '$2a$10$.JOM.FmAI3dyZlI1hyaoeuy.HrVgrJOADvlhoG18XjjX7otX13UT.';
+const MASTER_KEY = '$2a$10$kq2DpBDamSmswiVF7dP.2ejCGnTnrz65N5MTF5iv/rUIuPyregieO';
 const BIN_ID  = '69fef9ad250b1311c325b1c5';
 const API_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
 const ADMIN_PASS = 'chaptertwo2024';
@@ -420,7 +421,11 @@ async function loadProducts() {
   document.getElementById('tableContent').innerHTML = '<div class="loading"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>';
   try {
     var res = await fetch(API_URL + '/latest', {
-      headers: { 'X-Master-Key': API_KEY, 'X-Bin-Meta': 'false' }
+      headers: {
+        'X-Master-Key': MASTER_KEY,
+        'X-Access-Key': API_KEY,
+        'X-Bin-Meta': 'false'
+      }
     });
     var data = await res.json();
     allProducts = data.products || [];
@@ -438,7 +443,8 @@ async function saveToCloud() {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      'X-Master-Key': API_KEY
+      'X-Master-Key': MASTER_KEY,
+      'X-Access-Key': API_KEY
     },
     body: JSON.stringify({ products: allProducts })
   });
