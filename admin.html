@@ -569,14 +569,78 @@ function closeModal() {
   document.getElementById('productModal').classList.remove('show');
 }
 
-function previewImg() {
-  var url = document.getElementById('fImg').value.trim();
+function previewImg(url) {
+  var u = url || document.getElementById('fImg').value.trim();
   var prev = document.getElementById('imgPreview');
-  if (url) {
-    prev.innerHTML = '<img src="' + url + '" alt="" onerror="this.parentElement.innerHTML=\'<div class=img-placeholder>⚠ Link tidak valid</div>\'">';
+  if (u) {
+    var img = document.createElement('img');
+    img.src = u;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover';
+    img.onerror = function(){ prev.innerHTML = '<div class="img-placeholder" style="padding:20px">⚠ Gambar tidak bisa dimuat</div>'; };
+    prev.innerHTML = '';
+    prev.appendChild(img);
   } else {
     prev.innerHTML = '<div class="img-placeholder">📷</div>';
   }
+}
+
+function useUrlDirectly() {
+  var url = document.getElementById('fImgUrl').value.trim();
+  document.getElementById('fImg').value = url;
+  previewImg(url);
+}
+
+function handleUploadError(stat, bar, msg) {
+  bar.style.width = '0%';
+  stat.style.display = 'block';
+  stat.textContent = '⚠ Gagal: ' + msg;
+  stat.style.color = 'var(--red)';
+  showToast('Gagal upload — ' + msg, 'error');
+}
+
+function handleFileSelect(input) {
+  var file = input.files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) { showToast('Ukuran foto maksimal 10MB', 'error'); return; }
+
+  var prog = document.getElementById('uploadProgress');
+  var bar  = document.getElementById('uploadBar');
+  var stat = document.getElementById('uploadStatus');
+  prog.style.display = 'block';
+  bar.style.width = '10%';
+  stat.style.display = 'none';
+  showToast('Mengupload foto...', '');
+
+  var formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', UPLOAD_PRESET);
+
+  var xhr = new XMLHttpRequest();
+  xhr.upload.onprogress = function(e) {
+    if (e.lengthComputable) bar.style.width = Math.round((e.loaded/e.total)*80+10) + '%';
+  };
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      try {
+        var data = JSON.parse(xhr.responseText);
+        if (data.secure_url) {
+          bar.style.width = '100%';
+          document.getElementById('fImg').value = data.secure_url;
+          document.getElementById('fImgUrl').value = data.secure_url;
+          previewImg(data.secure_url);
+          stat.style.display = 'block';
+          stat.textContent = '✓ Foto berhasil diupload!';
+          stat.style.color = 'var(--sage)';
+          showToast('Foto berhasil diupload ✓', 'success');
+        } else {
+          handleUploadError(stat, bar, data.error ? data.error.message : 'Upload gagal');
+        }
+      } catch(e) { handleUploadError(stat, bar, 'Parse error'); }
+    } else { handleUploadError(stat, bar, 'HTTP ' + xhr.status); }
+  };
+  xhr.onerror = function() { handleUploadError(stat, bar, 'Koneksi gagal'); };
+  xhr.open('POST', CLOUD_URL, true);
+  xhr.send(formData);
 }
 
 // ── SAVE PRODUCT ──
