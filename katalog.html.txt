@@ -629,7 +629,7 @@ function renderGrid() {
     return `
     <div class="card" data-id="${p.id}">
       <div class="card-img" onclick="openModal(${p.id})">
-        ${p.img ? `<img src="${p.img}" alt="${p.name}">` : `<div class="placeholder-icon"><div class="pi-sym">${catIcon[p.cat]||'👗'}</div><div class="pi-txt">Foto Segera</div></div>`}
+        ${p.img ? `<img src="${p.img}" alt="${p.name}">` : `<div class="placeholder-icon"><div class="pi-sym">${catIcon[p.cat]||'👗'}</div><div class="pi-txt">Foto Produk</div></div>`}
         <div class="badges">
           ${p.badge==='new'?'<span class="badge badge-new">Terbaru</span>':''}
           ${p.badge==='titip'?'<span class="badge badge-titip">Titip Jual</span>':''}
