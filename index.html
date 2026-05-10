@@ -115,9 +115,10 @@ body { background: var(--cream); font-family: 'DM Mono', monospace; color: var(-
 .badge-new { background:var(--bark); color:var(--sand); }
 .badge-titip { background:var(--sage); color:#fff; }
 .badge-sale { background:var(--red); color:#fff; }
-.wish-btn { position:absolute; top:8px; right:8px; width:28px; height:28px; background:rgba(247,241,232,0.88); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; transition:all 0.2s; backdrop-filter:blur(4px); z-index:3; border-radius:50%; }
-.wish-btn:hover { background:var(--cream); transform:scale(1.12); }
-.wish-btn.wished { color:var(--red); }
+.wish-btn { position:absolute; top:8px; right:8px; width:30px; height:30px; background:rgba(255,255,255,0.92); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; backdrop-filter:blur(4px); z-index:3; border-radius:50%; box-shadow:0 1px 4px rgba(0,0,0,0.1); }
+.wish-btn:hover { background:#fff; transform:scale(1.12); }
+.wish-btn svg { width:14px; height:14px; stroke:var(--dusty); fill:none; transition:all 0.2s; }
+.wish-btn.wished svg { stroke:var(--red); fill:var(--red); }
 .kondisi-tag { position:absolute; bottom:8px; left:8px; font-size:7px; letter-spacing:0.12em; text-transform:uppercase; padding:3px 7px; font-family:'DM Mono',monospace; background:rgba(247,241,232,0.92); backdrop-filter:blur(4px); z-index:3; }
 .card-body { padding:12px 14px 14px; }
 .card-brand { font-size:8px; letter-spacing:0.2em; color:var(--dusty); text-transform:uppercase; margin-bottom:3px; }
@@ -285,11 +286,17 @@ body { background: var(--cream); font-family: 'DM Mono', monospace; color: var(-
 /* ── MOBILE ── */
 .mob-bar { display:none; padding:10px 16px; background:var(--white); border-bottom:1px solid rgba(139,99,72,0.12); gap:8px; }
 .mob-btn { flex:1; padding:8px; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; background:var(--cream); color:var(--clay); border:1px solid rgba(139,99,72,0.25); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; }
+.filter-close { display:none; background:none; border:none; font-size:16px; color:var(--clay); cursor:pointer; padding:2px 6px; }
+.mob-overlay { display:none; position:fixed; inset:0; background:rgba(44,31,20,0.4); z-index:198; backdrop-filter:blur(2px); }
+.sidebar .filter-header { padding:16px 20px !important; margin:0 !important; }
+.mob-overlay.show { display:block; }
 
 @media (max-width:768px) {
   .page { grid-template-columns:1fr; }
-  .sidebar { display:none; position:fixed; inset:auto 0 0 0; top:64px; z-index:199; height:auto; max-height:75vh; }
-  .sidebar.mob-open { display:block; }
+  .sidebar { display:none; position:fixed; left:0; top:146px; bottom:0; width:85vw; max-width:300px; z-index:199; box-shadow:4px 0 20px rgba(44,31,20,0.15); flex-direction:column; }
+  .sidebar.mob-open { display:flex; }
+
+
   .mob-bar { display:flex; }
   .main { padding:14px 14px; }
   .header { padding:0 14px; }
@@ -314,11 +321,13 @@ body { background: var(--cream); font-family: 'DM Mono', monospace; color: var(-
     <input type="text" placeholder="Cari produk, brand..." id="searchInput" oninput="currentPage=1;renderGrid()">
   </div>
   <div class="header-right">
-    <button class="icon-btn" onclick="toggleWishDrawer()" title="Wishlist">
-      🤍 <span class="badge" id="wishBadge" style="display:none">0</span>
+    <button class="icon-btn" onclick="toggleWishDrawer()" title="Wishlist" style="padding:6px 8px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--clay)"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+      <span class="badge" id="wishBadge" style="display:none">0</span>
     </button>
-    <button class="icon-btn" onclick="toggleCart()" title="Keranjang">
-      🛍 <span class="badge" id="cartBadge" style="display:none">0</span>
+    <button class="icon-btn" onclick="toggleCart()" title="Keranjang" style="padding:6px 8px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--clay)"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+      <span class="badge" id="cartBadge" style="display:none">0</span>
     </button>
   </div>
 </header>
@@ -338,58 +347,72 @@ body { background: var(--cream); font-family: 'DM Mono', monospace; color: var(-
   <button class="mob-btn" onclick="toggleSidebar()">⚙ Filter</button>
   <button class="mob-btn" onclick="document.getElementById('sortSel').focus()">↕ Urutan</button>
 </div>
+<div class="mob-overlay" id="mobOverlay" onclick="toggleSidebar()"></div>
 
 <!-- PAGE -->
 <div class="page">
   <aside class="sidebar" id="sidebar">
-    <div class="filter-header">
-      <span class="filter-title">Filter</span>
-      <button class="filter-reset" onclick="resetFilters()">Reset semua</button>
-    </div>
-    <div class="filter-group">
-      <div class="filter-group-title">Kategori</div>
-      <div class="filter-option"><input type="checkbox" id="fc-baju" onchange="renderGrid()"><label for="fc-baju">Baju</label><span class="cnt">(5)</span></div>
-      <div class="filter-option"><input type="checkbox" id="fc-tas" onchange="renderGrid()"><label for="fc-tas">Tas</label><span class="cnt">(3)</span></div>
-      <div class="filter-option"><input type="checkbox" id="fc-sepatu" onchange="renderGrid()"><label for="fc-sepatu">Sepatu</label><span class="cnt">(3)</span></div>
-      <div class="filter-option"><input type="checkbox" id="fc-aksesoris" onchange="renderGrid()"><label for="fc-aksesoris">Aksesoris</label><span class="cnt">(2)</span></div>
-    </div>
-    <div class="filter-group">
-      <div class="filter-group-title">Kondisi</div>
-      <div class="kondisi-opts">
-        <div class="kondisi-pill" onclick="toggleKondisi(this,'VVGC')"><span>Very Very Good</span><span class="kdot d-vvgc"></span></div>
-        <div class="kondisi-pill" onclick="toggleKondisi(this,'VGC')"><span>Very Good</span><span class="kdot d-vgc"></span></div>
-        <div class="kondisi-pill" onclick="toggleKondisi(this,'GC')"><span>Good Condition</span><span class="kdot d-gc"></span></div>
-        <div class="kondisi-pill" onclick="toggleKondisi(this,'GDC')"><span>Good Deal</span><span class="kdot d-gdc"></span></div>
+    <!-- STICKY HEADER -->
+    <div class="sidebar-header">
+      <div class="filter-title">Filter</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="filter-reset" onclick="resetFilters()">Reset</button>
+        <button onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;color:var(--clay);cursor:pointer;line-height:1;padding:0">✕</button>
       </div>
     </div>
-    <div class="filter-group">
-      <div class="filter-group-title">Rentang Harga</div>
-      <div class="price-inputs">
-        <input class="price-input" type="number" placeholder="Min" id="priceMin" oninput="currentPage=1;renderGrid()">
-        <input class="price-input" type="number" placeholder="Max" id="priceMax" oninput="currentPage=1;renderGrid()">
+
+    <!-- SCROLLABLE BODY -->
+    <div class="sidebar-body">
+      <div class="filter-group">
+        <div class="filter-group-title">Kategori</div>
+        <div class="filter-option"><input type="checkbox" id="fc-baju"><label for="fc-baju">Baju</label><span class="cnt">(5)</span></div>
+        <div class="filter-option"><input type="checkbox" id="fc-tas"><label for="fc-tas">Tas</label><span class="cnt">(3)</span></div>
+        <div class="filter-option"><input type="checkbox" id="fc-sepatu"><label for="fc-sepatu">Sepatu</label><span class="cnt">(3)</span></div>
+        <div class="filter-option"><input type="checkbox" id="fc-aksesoris"><label for="fc-aksesoris">Aksesoris</label><span class="cnt">(2)</span></div>
       </div>
-      <div class="price-note">dalam Rupiah (Rp)</div>
-    </div>
-    <div class="filter-group">
-      <div class="filter-group-title">Ukuran</div>
-      <div class="size-wrap" id="sizeFilters">
-        <div class="size-pill" onclick="toggleSize(this)">XS</div>
-        <div class="size-pill" onclick="toggleSize(this)">S</div>
-        <div class="size-pill" onclick="toggleSize(this)">M</div>
-        <div class="size-pill" onclick="toggleSize(this)">L</div>
-        <div class="size-pill" onclick="toggleSize(this)">XL</div>
-        <div class="size-pill" onclick="toggleSize(this)">36</div>
-        <div class="size-pill" onclick="toggleSize(this)">37</div>
-        <div class="size-pill" onclick="toggleSize(this)">38</div>
-        <div class="size-pill" onclick="toggleSize(this)">39</div>
-        <div class="size-pill" onclick="toggleSize(this)">40</div>
+      <div class="filter-group">
+        <div class="filter-group-title">Kondisi</div>
+        <div class="kondisi-opts">
+          <div class="kondisi-pill" onclick="toggleKondisi(this,'VVGC')"><span>Very Very Good</span><span class="kdot d-vvgc"></span></div>
+          <div class="kondisi-pill" onclick="toggleKondisi(this,'VGC')"><span>Very Good</span><span class="kdot d-vgc"></span></div>
+          <div class="kondisi-pill" onclick="toggleKondisi(this,'GC')"><span>Good Condition</span><span class="kdot d-gc"></span></div>
+          <div class="kondisi-pill" onclick="toggleKondisi(this,'GDC')"><span>Good Deal</span><span class="kdot d-gdc"></span></div>
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-title">Rentang Harga</div>
+        <div class="price-inputs">
+          <input class="price-input" type="number" placeholder="Min" id="priceMin">
+          <input class="price-input" type="number" placeholder="Max" id="priceMax">
+        </div>
+        <div class="price-note">dalam Rupiah (Rp)</div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-title">Ukuran</div>
+        <div class="size-wrap" id="sizeFilters">
+          <div class="size-pill" onclick="toggleSize(this)">XS</div>
+          <div class="size-pill" onclick="toggleSize(this)">S</div>
+          <div class="size-pill" onclick="toggleSize(this)">M</div>
+          <div class="size-pill" onclick="toggleSize(this)">L</div>
+          <div class="size-pill" onclick="toggleSize(this)">XL</div>
+          <div class="size-pill" onclick="toggleSize(this)">36</div>
+          <div class="size-pill" onclick="toggleSize(this)">37</div>
+          <div class="size-pill" onclick="toggleSize(this)">38</div>
+          <div class="size-pill" onclick="toggleSize(this)">39</div>
+          <div class="size-pill" onclick="toggleSize(this)">40</div>
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-title">Brand</div>
+        <div class="filter-option"><input type="checkbox" id="fb-lokal"><label for="fb-lokal">Lokal</label></div>
+        <div class="filter-option"><input type="checkbox" id="fb-branded"><label for="fb-branded">Branded</label></div>
+        <div class="filter-option"><input type="checkbox" id="fb-vintage"><label for="fb-vintage">Vintage</label></div>
       </div>
     </div>
-    <div class="filter-group">
-      <div class="filter-group-title">Brand</div>
-      <div class="filter-option"><input type="checkbox" id="fb-lokal" onchange="renderGrid()"><label for="fb-lokal">Lokal</label></div>
-      <div class="filter-option"><input type="checkbox" id="fb-branded" onchange="renderGrid()"><label for="fb-branded">Branded</label></div>
-      <div class="filter-option"><input type="checkbox" id="fb-vintage" onchange="renderGrid()"><label for="fb-vintage">Vintage</label></div>
+
+    <!-- STICKY FOOTER -->
+    <div class="sidebar-footer">
+      <button class="btn-apply" onclick="applyFilters();toggleSidebar()">Aplikasikan</button>
     </div>
   </aside>
 
@@ -618,23 +641,44 @@ function formatRp(n) { return 'Rp ' + n.toLocaleString('id-ID'); }
 
 // ── FILTERING ──
 function getFiltered() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const min = parseInt(document.getElementById('priceMin').value) || 0;
-  const max = parseInt(document.getElementById('priceMax').value) || Infinity;
-  const brandFilters = ['lokal','branded','vintage'].filter(b => document.getElementById('fb-'+b)?.checked);
-  let list = products.filter(p => {
+  var q = document.getElementById('searchInput').value.toLowerCase();
+  var min = parseInt(document.getElementById('priceMin').value) || 0;
+  var max = parseInt(document.getElementById('priceMax').value) || Infinity;
+
+  // Category checkboxes
+  var catChecked = ['baju','tas','sepatu','aksesoris'].filter(function(c) {
+    var el = document.getElementById('fc-'+c);
+    return el && el.checked;
+  });
+
+  // Brand checkboxes
+  var brandFilters = ['lokal','branded','vintage'].filter(function(b) {
+    var el = document.getElementById('fb-'+b);
+    return el && el.checked;
+  });
+
+  var list = products.filter(function(p) {
+    // Category nav filter
     if (activeCat !== 'semua' && p.cat !== activeCat) return false;
+    // Category checkbox filter (only apply if any checked)
+    if (catChecked.length && !catChecked.includes(p.cat)) return false;
+    // Kondisi filter
     if (activeKondisi.length && !activeKondisi.includes(p.kondisi)) return false;
+    // Size filter
     if (activeSizes.length && p.size !== '-' && !activeSizes.includes(p.size)) return false;
+    // Price filter
     if (p.price < min || p.price > max) return false;
-    if (brandFilters.length && !brandFilters.includes(p.brand.toLowerCase())) return false;
+    // Brand filter
+    if (brandFilters.length && !brandFilters.map(function(b){ return b.toLowerCase(); }).includes(p.brand.toLowerCase())) return false;
+    // Search filter
     if (q && !p.name.toLowerCase().includes(q) && !p.brand.toLowerCase().includes(q)) return false;
     return true;
   });
-  const sort = document.getElementById('sortSel').value;
-  if (sort === 'Harga: Terendah') list.sort((a,b) => a.price - b.price);
-  else if (sort === 'Harga: Tertinggi') list.sort((a,b) => b.price - a.price);
-  else if (sort === 'Kondisi Terbaik') list.sort((a,b) => kondisiOrder[b.kondisi] - kondisiOrder[a.kondisi]);
+
+  var sort = document.getElementById('sortSel').value;
+  if (sort === 'Harga: Terendah') list.sort(function(a,b){ return a.price - b.price; });
+  else if (sort === 'Harga: Tertinggi') list.sort(function(a,b){ return b.price - a.price; });
+  else if (sort === 'Kondisi Terbaik') list.sort(function(a,b){ return kondisiOrder[b.kondisi] - kondisiOrder[a.kondisi]; });
   return list;
 }
 
@@ -679,7 +723,7 @@ function renderGrid() {
       '<div class="card-img" onclick="openModal('+p.id+')">' +
         imgHtml +
         '<div class="badges">'+badges+'</div>' +
-        '<button class="wish-btn '+(isWished?'wished':'')+'" onclick="toggleWish(event,'+p.id+')">'+(isWished?'♥':'♡')+'</button>' +
+        '<button class="wish-btn '+(isWished?'wished':'')+'" onclick="toggleWish(event,'+p.id+')"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>' +
         '<div class="kondisi-tag" style="color:'+kondisiColor[p.kondisi]+'">'+p.kondisi+'</div>' +
       '</div>' +
       '<div class="card-body">' +
@@ -990,6 +1034,46 @@ function toggleSize(el) {
   renderGrid();
 }
 
+function applyFilters() {
+  // Baca semua state filter dari UI lalu render
+  currentPage = 1;
+
+  // Sync kondisi pills ke activeKondisi
+  activeKondisi = [];
+  document.querySelectorAll('.kondisi-pill.active').forEach(function(el) {
+    var txt = el.querySelector('span') ? el.querySelector('span').textContent.trim() : el.textContent.trim();
+    if (txt.toLowerCase().includes('very very')) activeKondisi.push('VVGC');
+    else if (txt.toLowerCase().includes('very good')) activeKondisi.push('VGC');
+    else if (txt.toLowerCase().includes('good condition')) activeKondisi.push('GC');
+    else if (txt.toLowerCase().includes('good deal')) activeKondisi.push('GDC');
+  });
+
+  // Sync size pills ke activeSizes
+  activeSizes = [];
+  document.querySelectorAll('#sizeFilters .size-pill.active').forEach(function(el) {
+    activeSizes.push(el.textContent.trim());
+  });
+
+  renderGrid();
+  updateTags();
+
+  // Show toast konfirmasi
+  var catChecked = ['baju','tas','sepatu','aksesoris'].filter(function(c) {
+    var el = document.getElementById('fc-'+c);
+    return el && el.checked;
+  });
+  var total = catChecked.length + activeKondisi.length + activeSizes.length;
+  var priceMin = document.getElementById('priceMin').value;
+  var priceMax = document.getElementById('priceMax').value;
+  if (priceMin || priceMax) total++;
+
+  if (total > 0) {
+    showToast('Filter diterapkan (' + total + ' filter aktif) ✓', 'success');
+  } else {
+    showToast('Menampilkan semua produk');
+  }
+}
+
 function resetFilters() {
   activeCat = 'semua'; activeKondisi = []; activeSizes = [];
   document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
@@ -1027,7 +1111,11 @@ function closeAll() {
   document.getElementById('overlay').classList.remove('show');
 }
 
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('mob-open'); }
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('mob-open');
+  document.getElementById('mobOverlay').classList.toggle('show');
+  document.body.style.overflow = document.getElementById('sidebar').classList.contains('mob-open') ? 'hidden' : '';
+}
 
 // ── TOAST ──
 let toastTimer;
