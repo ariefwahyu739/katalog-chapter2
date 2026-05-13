@@ -246,14 +246,16 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .modal-box { background:var(--cream); width:100%; max-height:92vh; border-radius:16px 16px 0 0; overflow:hidden; display:flex; flex-direction:column; transform:translateY(100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); }
 .modal.show .modal-box { transform:translateY(0); }
 .modal-handle { width:36px; height:4px; background:rgba(139,99,72,0.25); border-radius:2px; margin:12px auto 0; flex-shrink:0; }
-.modal-scroll { overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; }
+.modal-scroll { overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+
 /* ═══════════════════════════════
    IMAGE SLIDER
 ═══════════════════════════════ */
-.slider { aspect-ratio:1/1; background:var(--linen); position:relative; overflow:hidden; touch-action:pan-y; }
-.slider-track { display:flex; height:100%; transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); will-change:transform; }
+.slider { aspect-ratio:3/4; background:var(--linen); position:relative; overflow:hidden; touch-action:pan-y; max-height:75vh; }
+.slider-track { display:flex; height:100%; transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); will-change:transform; width: 100%; }
 .slider-slide { min-width:100%; height:100%; flex-shrink:0; display:flex; align-items:center; justify-content:center; position:relative; }
-.slider-slide img { width:100%; height:100%; object-fit:cover; cursor:zoom-in; }
+/* PERBAIKAN: object-fit diubah ke contain agar gambar full frame proporsional */
+.slider-slide img { width:100%; height:100%; object-fit:contain; background-color:var(--linen); cursor:zoom-in; display:block; }
 .slider-placeholder { display:flex; flex-direction:column; align-items:center; gap:8px; opacity:0.3; }
 .slider-placeholder span { font-size:48px; }
 .slider-placeholder p { font-size:8px; letter-spacing:0.2em; color:var(--clay); text-transform:uppercase; }
@@ -275,7 +277,7 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .slider-counter { position:absolute; bottom:10px; right:10px; background:rgba(44,31,20,0.6); color:#fff; font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; padding:3px 7px; border-radius:10px; z-index:5; backdrop-filter:blur(4px); }
 
 /* Thumbnails */
-.slider-thumbs { display:flex; gap:6px; padding:10px 16px; overflow-x:auto; background:var(--linen); }
+.slider-thumbs { display:flex; gap:6px; padding:10px 16px; overflow-x:auto; background:var(--linen); scroll-behavior: smooth; }
 .slider-thumbs::-webkit-scrollbar { display:none; }
 .slider-thumb { width:52px; height:52px; flex-shrink:0; cursor:pointer; border:2px solid transparent; overflow:hidden; transition:border-color 0.2s; opacity:0.65; transition:all 0.2s; }
 .slider-thumb.active { border-color:var(--clay); opacity:1; }
@@ -308,11 +310,11 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .zoom-counter-txt { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.15em; color:rgba(255,255,255,0.6); }
 .zoom-close { background:none; border:none; color:#fff; font-size:22px; cursor:pointer; padding:4px 8px; opacity:0.7; transition:opacity 0.2s; }
 .zoom-close:hover { opacity:1; }
-.zoom-body { flex:1; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
-.zoom-track { display:flex; height:100%; transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); }
-.zoom-slide { min-width:100vw; height:100%; display:flex; align-items:center; justify-content:center; padding:0 8px; }
-.zoom-slide img { max-width:100%; max-height:100%; object-fit:contain; border-radius:2px; cursor:zoom-in; transition:transform 0.3s; transform-origin:center; }
-.zoom-slide img.zoomed { cursor:zoom-out; transform:scale(2); }
+.zoom-body { flex:1; display:flex; align-items:stretch; position:relative; overflow:hidden; min-height:0; }
+.zoom-track { display:flex; width:100%; transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); align-items:stretch; }
+.zoom-slide { min-width:100vw; height:100%; display:flex; align-items:center; justify-content:center; padding:4px; }
+.zoom-slide img { max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; cursor:zoom-in; transition:transform 0.3s ease; transform-origin:center center; user-select:none; -webkit-user-drag:none; }
+.zoom-slide img.zoomed { cursor:zoom-out; transform:scale(2.5); }
 .zoom-prev, .zoom-next { position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; background:rgba(255,255,255,0.1); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; border-radius:50%; z-index:5; transition:background 0.2s; color:#fff; font-size:18px; }
 .zoom-prev { left:12px; }
 .zoom-next { right:12px; }
@@ -1062,41 +1064,58 @@ function slideMove(dir) {
   slideTo(sliderIndex + dir);
 }
 
+// PERBAIKAN LOGIKA TRANSLATE & SCROLL THUMBNAIL
 function updateSliderUI() {
   var track = document.getElementById('sliderTrack');
-  var dots = document.querySelectorAll('.slider-dot');
-  var thumbs = document.querySelectorAll('.slider-thumb');
+  var dots = document.querySelectorAll('#sliderDots .slider-dot');
+  var thumbs = document.querySelectorAll('#sliderThumbs .slider-thumb');
   var counter = document.getElementById('sliderCounter');
   var prevBtn = document.getElementById('sliderPrev');
   var nextBtn = document.getElementById('sliderNext');
 
-  track.style.transform = 'translateX(-' + (sliderIndex * 100) + '%)';
+  // Menggunakan persentase yang dinamis sesuai jumlah gambar agar tidak melompat jauh
+  var translatePct = sliderIndex * (100 / sliderImages.length);
+  track.style.transform = 'translateX(-' + translatePct + '%)';
 
   dots.forEach(function(d,i){ d.classList.toggle('active', i===sliderIndex); });
   thumbs.forEach(function(t,i){ t.classList.toggle('active', i===sliderIndex); });
 
   if (sliderImages.length > 1) {
     counter.textContent = (sliderIndex+1) + ' / ' + sliderImages.length;
-    prevBtn.style.opacity = sliderIndex===0 ? '0.3' : '1';
-    nextBtn.style.opacity = sliderIndex===sliderImages.length-1 ? '0.3' : '1';
-    // Scroll thumb into view
-    var thumbEl = document.querySelectorAll('.slider-thumb')[sliderIndex];
-    if (thumbEl) thumbEl.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+    
+    // Matikan klik jika sudah di ujung
+    prevBtn.style.opacity = sliderIndex === 0 ? '0.3' : '1';
+    prevBtn.style.pointerEvents = sliderIndex === 0 ? 'none' : 'auto';
+    
+    nextBtn.style.opacity = sliderIndex === sliderImages.length - 1 ? '0.3' : '1';
+    nextBtn.style.pointerEvents = sliderIndex === sliderImages.length - 1 ? 'none' : 'auto';
+    
+    // Scroll otomatis pada thumbnail
+    var thumbEl = thumbs[sliderIndex];
+    if (thumbEl) {
+        thumbEl.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+    }
   }
 }
 
+// PERBAIKAN LISTENER TOUCH AGAR TIDAK DOUBLE EVENT
 function initSliderTouch() {
   var slider = document.getElementById('modalSlider');
-  slider.addEventListener('touchstart', function(e) {
+  
+  slider.ontouchstart = null;
+  slider.ontouchend = null;
+
+  slider.ontouchstart = function(e) {
     sliderStartX = e.touches[0].clientX;
     sliderDragging = true;
-  }, {passive:true});
-  slider.addEventListener('touchend', function(e) {
+  };
+  
+  slider.ontouchend = function(e) {
     if (!sliderDragging || sliderImages.length <= 1) return;
     var diff = sliderStartX - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 40) slideMove(diff > 0 ? 1 : -1);
     sliderDragging = false;
-  }, {passive:true});
+  };
 }
 
 function updateStickyBuy(id) {
