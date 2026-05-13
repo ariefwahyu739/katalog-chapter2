@@ -253,7 +253,7 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .slider { aspect-ratio:1/1; background:var(--linen); position:relative; overflow:hidden; touch-action:pan-y; }
 .slider-track { display:flex; height:100%; transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); will-change:transform; }
 .slider-slide { min-width:100%; height:100%; flex-shrink:0; display:flex; align-items:center; justify-content:center; position:relative; }
-.slider-slide img { width:100%; height:100%; object-fit:cover; }
+.slider-slide img { width:100%; height:100%; object-fit:cover; cursor:zoom-in; }
 .slider-placeholder { display:flex; flex-direction:column; align-items:center; gap:8px; opacity:0.3; }
 .slider-placeholder span { font-size:48px; }
 .slider-placeholder p { font-size:8px; letter-spacing:0.2em; color:var(--clay); text-transform:uppercase; }
@@ -298,6 +298,33 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .modal-meta-val { font-size:10px; color:var(--bark); }
 .modal-desc { font-family:'Cormorant Garamond',serif; font-size:15px; font-weight:300; color:var(--soil); line-height:1.7; margin-bottom:80px; }
 .modal-close-btn { position:absolute; top:12px; right:12px; width:32px; height:32px; background:rgba(255,255,255,0.9); border:none; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--clay); z-index:5; }
+
+/* ═══════════════════════════════
+   ZOOM LIGHTBOX
+═══════════════════════════════ */
+.zoom-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:1000; display:none; flex-direction:column; }
+.zoom-overlay.show { display:flex; }
+.zoom-header { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.zoom-counter-txt { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.15em; color:rgba(255,255,255,0.6); }
+.zoom-close { background:none; border:none; color:#fff; font-size:22px; cursor:pointer; padding:4px 8px; opacity:0.7; transition:opacity 0.2s; }
+.zoom-close:hover { opacity:1; }
+.zoom-body { flex:1; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+.zoom-track { display:flex; height:100%; transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+.zoom-slide { min-width:100vw; height:100%; display:flex; align-items:center; justify-content:center; padding:0 8px; }
+.zoom-slide img { max-width:100%; max-height:100%; object-fit:contain; border-radius:2px; cursor:zoom-in; transition:transform 0.3s; transform-origin:center; }
+.zoom-slide img.zoomed { cursor:zoom-out; transform:scale(2); }
+.zoom-prev, .zoom-next { position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; background:rgba(255,255,255,0.1); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; border-radius:50%; z-index:5; transition:background 0.2s; color:#fff; font-size:18px; }
+.zoom-prev { left:12px; }
+.zoom-next { right:12px; }
+.zoom-prev:hover, .zoom-next:hover { background:rgba(255,255,255,0.2); }
+.zoom-prev.hidden, .zoom-next.hidden { display:none; }
+.zoom-footer { padding:12px 16px 20px; flex-shrink:0; }
+.zoom-thumbs { display:flex; gap:6px; justify-content:center; overflow-x:auto; }
+.zoom-thumbs::-webkit-scrollbar { display:none; }
+.zoom-thumb { width:44px; height:44px; flex-shrink:0; cursor:pointer; border:2px solid transparent; overflow:hidden; opacity:0.5; transition:all 0.2s; border-radius:2px; }
+.zoom-thumb.active { border-color:#fff; opacity:1; }
+.zoom-thumb img { width:100%; height:100%; object-fit:cover; }
+.zoom-hint { text-align:center; font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.15em; color:rgba(255,255,255,0.3); margin-top:8px; text-transform:uppercase; }
 
 /* ═══════════════════════════════
    STICKY BUY BUTTON (fixed bottom)
@@ -673,6 +700,23 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- ZOOM LIGHTBOX -->
+<div class="zoom-overlay" id="zoomOverlay">
+  <div class="zoom-header">
+    <span class="zoom-counter-txt" id="zoomCounter"></span>
+    <button class="zoom-close" onclick="closeZoom()">✕</button>
+  </div>
+  <div class="zoom-body">
+    <div class="zoom-track" id="zoomTrack"></div>
+    <button class="zoom-prev hidden" id="zoomPrev" onclick="zoomMove(-1)">‹</button>
+    <button class="zoom-next hidden" id="zoomNext" onclick="zoomMove(1)">›</button>
+  </div>
+  <div class="zoom-footer">
+    <div class="zoom-thumbs" id="zoomThumbs"></div>
+    <div class="zoom-hint" id="zoomHint">Tap foto untuk zoom · Geser untuk navigasi</div>
+  </div>
+</div>
+
 <script>
 // ── CONFIG ──
 var MASTER_KEY  = '$2a$10$kq2DpBDamSmswiVF7dP.2ejCGnTnrz65N5MTF5iv/rUIuPyregieO';
@@ -975,7 +1019,7 @@ function renderSlider(p) {
 
   // Build slides
   track.innerHTML = sliderImages.map(function(src, i) {
-    return '<div class="slider-slide"><img src="'+src+'" alt="Foto '+(i+1)+'" loading="lazy"></div>';
+    return '<div class="slider-slide"><img src="'+src+'" alt="Foto '+(i+1)+'" loading="lazy" onclick="openZoom('+i+')"></div>';
   }).join('');
 
   // Dots (show if <= 8 images)
@@ -1251,6 +1295,96 @@ function showToast(msg,type) {
   t.className='toast show'+(type?' '+type:'');
   clearTimeout(toastTimer);
   toastTimer=setTimeout(function(){t.classList.remove('show');},2800);
+}
+
+// ── ZOOM LIGHTBOX ──
+var zoomIndex = 0;
+var zoomStartX = 0;
+
+function openZoom(startIdx) {
+  if (!sliderImages.length) return;
+  zoomIndex = startIdx || sliderIndex;
+  var overlay = document.getElementById('zoomOverlay');
+  var track = document.getElementById('zoomTrack');
+  var thumbs = document.getElementById('zoomThumbs');
+  var prevBtn = document.getElementById('zoomPrev');
+  var nextBtn = document.getElementById('zoomNext');
+
+  // Build zoom slides
+  track.innerHTML = sliderImages.map(function(src, i) {
+    return '<div class="zoom-slide">'
+      +'<img src="'+src+'" alt="Foto '+(i+1)+'" onclick="toggleZoomImg(this)">'
+    +'</div>';
+  }).join('');
+
+  // Build thumbnails
+  if (sliderImages.length > 1) {
+    thumbs.innerHTML = sliderImages.map(function(src, i) {
+      return '<div class="zoom-thumb" onclick="zoomTo('+i+')">'
+        +'<img src="'+src+'" alt="">'
+      +'</div>';
+    }).join('');
+    prevBtn.classList.remove('hidden');
+    nextBtn.classList.remove('hidden');
+  } else {
+    thumbs.innerHTML = '';
+    prevBtn.classList.add('hidden');
+    nextBtn.classList.add('hidden');
+  }
+
+  overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  zoomTo(zoomIndex);
+  initZoomTouch();
+}
+
+function toggleZoomImg(img) {
+  img.classList.toggle('zoomed');
+}
+
+function zoomTo(i) {
+  zoomIndex = Math.max(0, Math.min(i, sliderImages.length-1));
+  var track = document.getElementById('zoomTrack');
+  var counter = document.getElementById('zoomCounter');
+  var thumbEls = document.querySelectorAll('.zoom-thumb');
+  var imgEls = document.querySelectorAll('.zoom-slide img');
+
+  // Reset zoom on all images
+  imgEls.forEach(function(img){ img.classList.remove('zoomed'); });
+
+  track.style.transform = 'translateX(-' + (zoomIndex * 100) + 'vw)';
+  counter.textContent = (zoomIndex+1) + ' / ' + sliderImages.length;
+  thumbEls.forEach(function(t,i){ t.classList.toggle('active', i===zoomIndex); });
+
+  // Update hint
+  document.getElementById('zoomHint').textContent = 'Tap foto untuk zoom · Geser untuk navigasi';
+
+  // Scroll thumb into view
+  var thumbEl = thumbEls[zoomIndex];
+  if (thumbEl) thumbEl.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+
+  // Update prev/next opacity
+  document.getElementById('zoomPrev').style.opacity = zoomIndex===0?'0.3':'1';
+  document.getElementById('zoomNext').style.opacity = zoomIndex===sliderImages.length-1?'0.3':'1';
+}
+
+function zoomMove(dir) { zoomTo(zoomIndex + dir); }
+
+function closeZoom() {
+  document.getElementById('zoomOverlay').classList.remove('show');
+  document.body.style.overflow = 'hidden'; // keep modal scroll locked
+}
+
+function initZoomTouch() {
+  var body = document.getElementById('zoomOverlay');
+  var startX = 0;
+  body.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+  }, {passive:true});
+  body.addEventListener('touchend', function(e) {
+    var diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50 && sliderImages.length > 1) zoomMove(diff > 0 ? 1 : -1);
+  }, {passive:true});
 }
 
 // ── INIT ──
