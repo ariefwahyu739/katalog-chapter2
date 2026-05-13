@@ -116,6 +116,16 @@ tbody td { padding:12px 16px; font-size:11px; color:var(--soil); vertical-align:
 .form-note { font-size:9px; color:var(--dusty); margin-top:4px; letter-spacing:0.05em; }
 .img-preview { width:100%; aspect-ratio:3/4; background:var(--linen); display:flex; align-items:center; justify-content:center; margin-top:8px; overflow:hidden; max-height:200px; }
 .upload-area { border:2px dashed rgba(139,99,72,0.3); padding:20px; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--white); margin-top:8px; position:relative; }
+.img-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:8px; margin-top:10px; }
+.img-grid-item { aspect-ratio:1/1; position:relative; background:var(--linen); overflow:hidden; }
+.img-grid-item img { width:100%; height:100%; object-fit:cover; }
+.img-grid-remove { position:absolute; top:3px; right:3px; width:18px; height:18px; background:rgba(192,74,42,0.85); color:#fff; border:none; border-radius:50%; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; }
+.img-grid-main { position:absolute; bottom:3px; left:3px; font-size:7px; letter-spacing:0.1em; background:rgba(44,31,20,0.7); color:var(--sand); padding:2px 5px; text-transform:uppercase; }
+.img-add-more { border:2px dashed rgba(139,99,72,0.25); aspect-ratio:1/1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; transition:all 0.2s; background:var(--cream); position:relative; }
+.img-add-more input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.img-add-more:hover { border-color:var(--clay); background:var(--linen); }
+.img-add-more span { font-size:20px; }
+.img-add-more p { font-size:8px; color:var(--clay); letter-spacing:0.1em; }
 .upload-area:hover { border-color:var(--clay); background:var(--linen); }
 .upload-area.dragover { border-color:var(--clay); background:rgba(139,99,72,0.05); }
 .upload-area input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
@@ -343,23 +353,21 @@ tbody td { padding:12px 16px; font-size:11px; color:var(--soil); vertical-align:
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Foto Produk</label>
-        <div class="upload-area" id="uploadArea">
-          <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(this)">
-          <div class="upload-icon">📷</div>
-          <div class="upload-text">Tap untuk pilih foto dari galeri</div>
-          <div class="upload-sub">JPG, PNG, WEBP · Maks 10MB</div>
-          <div class="upload-progress" id="uploadProgress">
-            <div class="upload-progress-bar" id="uploadBar"></div>
-          </div>
-          <div class="upload-status" id="uploadStatus">✓ Foto berhasil diupload</div>
+        <label class="form-label">Foto Produk (bisa lebih dari 1)</label>
+        <div class="img-grid" id="imgGrid"></div>
+        <div class="upload-progress" id="uploadProgress" style="display:none;margin-top:8px">
+          <div class="upload-progress-bar" id="uploadBar"></div>
         </div>
-        <div class="img-preview" id="imgPreview" style="margin-top:8px">
-          <div class="img-placeholder">📷</div>
-        </div>
+        <div class="upload-status" id="uploadStatus" style="display:none;margin-top:6px"></div>
         <input type="hidden" id="fImg">
-        <div class="form-note" style="margin-top:6px">Atau paste link foto langsung:</div>
-        <input class="form-input" type="url" id="fImgUrl" placeholder="https://..." oninput="useUrlDirectly()" style="margin-top:6px">
+        <div class="form-note" style="margin-top:8px">Foto pertama = foto utama di katalog. Bisa tambah banyak foto untuk slider detail produk.</div>
+        <div style="margin-top:8px">
+          <div class="form-note">Atau paste link foto:</div>
+          <div style="display:flex;gap:6px;margin-top:4px">
+            <input class="form-input" type="url" id="fImgUrl" placeholder="https://i.ibb.co/...">
+            <button onclick="addImgFromUrl()" style="background:var(--clay);color:var(--cream);border:none;padding:8px 12px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap">+ Tambah</button>
+          </div>
+        </div>
       </div>
       <div class="form-group">
         <label class="form-label">Deskripsi Produk</label>
@@ -531,11 +539,13 @@ function openAddModal() {
   document.getElementById('fOrig').value = '';
   document.getElementById('fSize').value = '';
   document.getElementById('fBadge').value = '';
+  uploadedImages = [];
   document.getElementById('fImg').value = '';
   document.getElementById('fImgUrl').value = '';
   document.getElementById('uploadStatus').style.display = 'none';
   document.getElementById('uploadProgress').style.display = 'none';
   document.getElementById('uploadBar').style.width = '0%';
+  renderImgGrid();
   document.getElementById('fDesc').value = '';
   document.getElementById('fTitip').classList.remove('on');
   document.getElementById('imgPreview').innerHTML = '<div class="img-placeholder">📷</div>';
@@ -556,12 +566,14 @@ function openEditModal(id) {
   document.getElementById('fOrig').value = p.orig || '';
   document.getElementById('fSize').value = p.size !== '-' ? p.size : '';
   document.getElementById('fBadge').value = p.badge || '';
-  document.getElementById('fImg').value = p.img || '';
-  document.getElementById('fImgUrl').value = p.img || '';
+  uploadedImages = p.images && p.images.length ? p.images.slice() : (p.img ? [p.img] : []);
+  document.getElementById('fImg').value = uploadedImages[0] || '';
+  document.getElementById('fImgUrl').value = '';
+  renderImgGrid();
   document.getElementById('fDesc').value = p.desc || '';
   if (p.titip) document.getElementById('fTitip').classList.add('on');
   else document.getElementById('fTitip').classList.remove('on');
-  previewImg(p.img || null);
+  // images handled by renderImgGrid above
   document.getElementById('productModal').classList.add('show');
 }
 
@@ -569,25 +581,48 @@ function closeModal() {
   document.getElementById('productModal').classList.remove('show');
 }
 
+// ── MULTI IMAGE MANAGEMENT ──
+var uploadedImages = []; // array of URLs
+
+function renderImgGrid() {
+  var grid = document.getElementById('imgGrid');
+  var items = uploadedImages.map(function(url, i) {
+    return '<div class="img-grid-item">'
+      +'<img src="'+url+'" alt="">'
+      +(i===0?'<div class="img-grid-main">Utama</div>':'')
+      +'<button class="img-grid-remove" onclick="removeImg('+i+')">✕</button>'
+    +'</div>';
+  }).join('');
+  // Add more button
+  items += '<div class="img-add-more">'
+    +'<input type="file" accept="image/*" onchange="handleFileSelect(this)">'
+    +'<span>+</span><p>Tambah Foto</p>'
+  +'</div>';
+  grid.innerHTML = items;
+  // Set first image as main fImg
+  document.getElementById('fImg').value = uploadedImages[0] || '';
+}
+
+function removeImg(idx) {
+  uploadedImages.splice(idx, 1);
+  renderImgGrid();
+}
+
+function addImgFromUrl() {
+  var url = document.getElementById('fImgUrl').value.trim();
+  if (!url) return;
+  uploadedImages.push(url);
+  document.getElementById('fImgUrl').value = '';
+  renderImgGrid();
+  showToast('Foto ditambahkan ✓', 'success');
+}
+
 function previewImg(url) {
-  var u = url || document.getElementById('fImg').value.trim();
-  var prev = document.getElementById('imgPreview');
-  if (u) {
-    var img = document.createElement('img');
-    img.src = u;
-    img.style.cssText = 'width:100%;height:100%;object-fit:cover';
-    img.onerror = function(){ prev.innerHTML = '<div class="img-placeholder" style="padding:20px">⚠ Gambar tidak bisa dimuat</div>'; };
-    prev.innerHTML = '';
-    prev.appendChild(img);
-  } else {
-    prev.innerHTML = '<div class="img-placeholder">📷</div>';
-  }
+  // Legacy - not used in new multi-image flow
 }
 
 function useUrlDirectly() {
-  var url = document.getElementById('fImgUrl').value.trim();
-  document.getElementById('fImg').value = url;
-  previewImg(url);
+  addImgFromUrl();
 }
 
 function handleUploadError(stat, bar, msg) {
@@ -625,13 +660,13 @@ function handleFileSelect(input) {
         var data = JSON.parse(xhr.responseText);
         if (data.secure_url) {
           bar.style.width = '100%';
-          document.getElementById('fImg').value = data.secure_url;
-          document.getElementById('fImgUrl').value = data.secure_url;
-          previewImg(data.secure_url);
+          uploadedImages.push(data.secure_url);
+          renderImgGrid();
           stat.style.display = 'block';
-          stat.textContent = '✓ Foto berhasil diupload!';
+          stat.textContent = '✓ Foto ' + uploadedImages.length + ' berhasil diupload!';
           stat.style.color = 'var(--sage)';
           showToast('Foto berhasil diupload ✓', 'success');
+          setTimeout(function(){ bar.style.width='0%'; prog.style.display='none'; stat.style.display='none'; }, 2000);
         } else {
           handleUploadError(stat, bar, data.error ? data.error.message : 'Upload gagal');
         }
@@ -665,7 +700,8 @@ async function saveProduct() {
     orig: parseInt(document.getElementById('fOrig').value) || null,
     size: size,
     badge: document.getElementById('fBadge').value || null,
-    img: document.getElementById('fImg').value.trim() || null,
+    img: uploadedImages[0] || null,
+    images: uploadedImages.length > 0 ? uploadedImages.slice() : [],
     desc: document.getElementById('fDesc').value.trim() || '',
     titip: document.getElementById('fTitip').classList.contains('on')
   };
