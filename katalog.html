@@ -247,12 +247,43 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .modal.show .modal-box { transform:translateY(0); }
 .modal-handle { width:36px; height:4px; background:rgba(139,99,72,0.25); border-radius:2px; margin:12px auto 0; flex-shrink:0; }
 .modal-scroll { overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; }
-.modal-img { aspect-ratio:1/1; background:var(--linen); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
-.modal-img img { width:100%; height:100%; object-fit:cover; }
-.modal-img-placeholder { display:flex; flex-direction:column; align-items:center; gap:8px; opacity:0.3; }
-.modal-img-placeholder span { font-size:48px; }
-.modal-img-placeholder p { font-size:8px; letter-spacing:0.2em; color:var(--clay); text-transform:uppercase; }
-.modal-badges-row { position:absolute; top:12px; left:12px; display:flex; gap:4px; }
+/* ═══════════════════════════════
+   IMAGE SLIDER
+═══════════════════════════════ */
+.slider { aspect-ratio:1/1; background:var(--linen); position:relative; overflow:hidden; touch-action:pan-y; }
+.slider-track { display:flex; height:100%; transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); will-change:transform; }
+.slider-slide { min-width:100%; height:100%; flex-shrink:0; display:flex; align-items:center; justify-content:center; position:relative; }
+.slider-slide img { width:100%; height:100%; object-fit:cover; }
+.slider-placeholder { display:flex; flex-direction:column; align-items:center; gap:8px; opacity:0.3; }
+.slider-placeholder span { font-size:48px; }
+.slider-placeholder p { font-size:8px; letter-spacing:0.2em; color:var(--clay); text-transform:uppercase; }
+
+/* Prev/Next arrows */
+.slider-prev, .slider-next { position:absolute; top:50%; transform:translateY(-50%); z-index:5; width:32px; height:32px; background:rgba(255,255,255,0.85); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; border-radius:50%; box-shadow:0 2px 8px rgba(0,0,0,0.1); transition:all 0.2s; backdrop-filter:blur(4px); }
+.slider-prev { left:10px; }
+.slider-next { right:10px; }
+.slider-prev:hover, .slider-next:hover { background:#fff; transform:translateY(-50%) scale(1.08); }
+.slider-prev svg, .slider-next svg { width:14px; height:14px; stroke:var(--clay); fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+.slider-prev.hidden, .slider-next.hidden { display:none; }
+
+/* Dots */
+.slider-dots { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:5px; z-index:5; }
+.slider-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5); cursor:pointer; transition:all 0.2s; border:none; padding:0; }
+.slider-dot.active { background:#fff; width:18px; border-radius:3px; }
+
+/* Counter badge */
+.slider-counter { position:absolute; bottom:10px; right:10px; background:rgba(44,31,20,0.6); color:#fff; font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; padding:3px 7px; border-radius:10px; z-index:5; backdrop-filter:blur(4px); }
+
+/* Thumbnails */
+.slider-thumbs { display:flex; gap:6px; padding:10px 16px; overflow-x:auto; background:var(--linen); }
+.slider-thumbs::-webkit-scrollbar { display:none; }
+.slider-thumb { width:52px; height:52px; flex-shrink:0; cursor:pointer; border:2px solid transparent; overflow:hidden; transition:border-color 0.2s; opacity:0.65; transition:all 0.2s; }
+.slider-thumb.active { border-color:var(--clay); opacity:1; }
+.slider-thumb img { width:100%; height:100%; object-fit:cover; }
+.slider-thumb-placeholder { width:100%; height:100%; background:var(--cream); display:flex; align-items:center; justify-content:center; font-size:16px; opacity:0.5; }
+
+.modal-badges-row { position:absolute; top:12px; left:12px; display:flex; gap:4px; z-index:4; }
+.modal-img { display:none; }
 .modal-content { padding:16px 20px; }
 .modal-brand { font-size:9px; letter-spacing:0.22em; color:var(--dusty); text-transform:uppercase; margin-bottom:4px; }
 .modal-name { font-family:'Playfair Display',serif; font-size:22px; color:var(--bark); line-height:1.2; margin-bottom:10px; }
@@ -512,7 +543,22 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
     <div class="modal-handle"></div>
     <button class="modal-close-btn" onclick="closeModal()">✕</button>
     <div class="modal-scroll">
-      <div class="modal-img" id="modalImg"></div>
+      <!-- SLIDER -->
+      <div class="slider" id="modalSlider">
+        <div class="slider-track" id="sliderTrack"></div>
+        <button class="slider-prev hidden" id="sliderPrev" onclick="slideMove(-1)">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="slider-next hidden" id="sliderNext" onclick="slideMove(1)">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="slider-dots" id="sliderDots"></div>
+        <div class="slider-counter" id="sliderCounter" style="display:none"></div>
+        <div class="modal-badges-row" id="modalBadges"></div>
+      </div>
+      <!-- THUMBNAILS -->
+      <div class="slider-thumbs" id="sliderThumbs" style="display:none"></div>
+      <!-- CONTENT -->
       <div class="modal-content" id="modalContent"></div>
     </div>
   </div>
@@ -853,19 +899,38 @@ function toggleWishDrawer() {
 }
 
 // ── PRODUCT MODAL ──
+// ── SLIDER STATE ──
+var sliderIndex = 0;
+var sliderImages = [];
+var sliderStartX = 0;
+var sliderDragging = false;
+
 function openModal(id) {
   var p=products.find(function(x){return x.id===id;});
   if(!p) return;
   currentProductId=id;
-  var savePct=p.orig?Math.round((1-p.price/p.orig)*100):0;
-  var imgHtml=p.img
-    ?'<img src="'+p.img+'" alt="'+p.name+'">'
-    :'<div class="modal-img-placeholder"><span>'+(CAT_ICON[p.cat]||'👗')+'</span><p>Foto Segera Hadir</p></div>';
+  sliderIndex=0;
+
+  // Build images array — support single img or images array
+  sliderImages = [];
+  if (p.images && p.images.length) {
+    sliderImages = p.images;
+  } else if (p.img) {
+    sliderImages = [p.img];
+  }
+
+  // Render slider
+  renderSlider(p);
+
+  // Render badges
   var badges='';
   if(p.badge==='new') badges+='<span class="cbadge cbadge-new">Terbaru</span>';
   if(p.badge==='titip') badges+='<span class="cbadge cbadge-titip">Titip Jual</span>';
   if(p.badge==='sale') badges+='<span class="cbadge cbadge-sale">Sale</span>';
-  document.getElementById('modalImg').innerHTML=imgHtml+'<div class="modal-badges-row">'+badges+'</div>';
+  document.getElementById('modalBadges').innerHTML=badges;
+
+  // Render content
+  var savePct=p.orig?Math.round((1-p.price/p.orig)*100):0;
   document.getElementById('modalContent').innerHTML=
     '<div class="modal-brand">'+p.brand+'</div>'
     +'<div class="modal-name">'+p.name+'</div>'
@@ -880,11 +945,114 @@ function openModal(id) {
     +'</div>'
     +'<div class="modal-divider"></div>'
     +(p.desc?'<div class="modal-desc">'+p.desc+'</div>':'');
+
   document.getElementById('modalOverlay').classList.add('show');
   document.getElementById('productModal').classList.add('show');
   document.getElementById('stickyBuy').classList.add('show');
   document.body.style.overflow='hidden';
   updateStickyBuy(id);
+  initSliderTouch();
+}
+
+function renderSlider(p) {
+  var track = document.getElementById('sliderTrack');
+  var dots = document.getElementById('sliderDots');
+  var counter = document.getElementById('sliderCounter');
+  var thumbsWrap = document.getElementById('sliderThumbs');
+  var prevBtn = document.getElementById('sliderPrev');
+  var nextBtn = document.getElementById('sliderNext');
+
+  if (!sliderImages.length) {
+    // Placeholder
+    track.innerHTML = '<div class="slider-slide"><div class="slider-placeholder"><span>'+(CAT_ICON[p.cat]||'👗')+'</span><p>Foto Segera Hadir</p></div></div>';
+    dots.innerHTML = '';
+    counter.style.display = 'none';
+    thumbsWrap.style.display = 'none';
+    prevBtn.classList.add('hidden');
+    nextBtn.classList.add('hidden');
+    return;
+  }
+
+  // Build slides
+  track.innerHTML = sliderImages.map(function(src, i) {
+    return '<div class="slider-slide"><img src="'+src+'" alt="Foto '+(i+1)+'" loading="lazy"></div>';
+  }).join('');
+
+  // Dots (show if <= 8 images)
+  if (sliderImages.length <= 8) {
+    dots.innerHTML = sliderImages.map(function(_, i) {
+      return '<button class="slider-dot'+(i===0?' active':'')+'" onclick="slideTo('+i+')"></button>';
+    }).join('');
+    counter.style.display = 'none';
+  } else {
+    dots.innerHTML = '';
+    counter.style.display = 'flex';
+    counter.textContent = '1 / ' + sliderImages.length;
+  }
+
+  // Thumbnails (show if > 1)
+  if (sliderImages.length > 1) {
+    thumbsWrap.style.display = 'flex';
+    thumbsWrap.innerHTML = sliderImages.map(function(src, i) {
+      return '<div class="slider-thumb'+(i===0?' active':'')+'" onclick="slideTo('+i+')">'
+        +'<img src="'+src+'" alt="Thumb '+(i+1)+'" loading="lazy">'
+      +'</div>';
+    }).join('');
+    prevBtn.classList.remove('hidden');
+    nextBtn.classList.remove('hidden');
+  } else {
+    thumbsWrap.style.display = 'none';
+    prevBtn.classList.add('hidden');
+    nextBtn.classList.add('hidden');
+  }
+
+  updateSliderUI();
+}
+
+function slideTo(i) {
+  sliderIndex = Math.max(0, Math.min(i, sliderImages.length - 1));
+  updateSliderUI();
+}
+
+function slideMove(dir) {
+  slideTo(sliderIndex + dir);
+}
+
+function updateSliderUI() {
+  var track = document.getElementById('sliderTrack');
+  var dots = document.querySelectorAll('.slider-dot');
+  var thumbs = document.querySelectorAll('.slider-thumb');
+  var counter = document.getElementById('sliderCounter');
+  var prevBtn = document.getElementById('sliderPrev');
+  var nextBtn = document.getElementById('sliderNext');
+
+  track.style.transform = 'translateX(-' + (sliderIndex * 100) + '%)';
+
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===sliderIndex); });
+  thumbs.forEach(function(t,i){ t.classList.toggle('active', i===sliderIndex); });
+
+  if (sliderImages.length > 1) {
+    counter.textContent = (sliderIndex+1) + ' / ' + sliderImages.length;
+    prevBtn.style.opacity = sliderIndex===0 ? '0.3' : '1';
+    nextBtn.style.opacity = sliderIndex===sliderImages.length-1 ? '0.3' : '1';
+    // Scroll thumb into view
+    var thumbEl = document.querySelectorAll('.slider-thumb')[sliderIndex];
+    if (thumbEl) thumbEl.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+  }
+}
+
+function initSliderTouch() {
+  var slider = document.getElementById('modalSlider');
+  slider.addEventListener('touchstart', function(e) {
+    sliderStartX = e.touches[0].clientX;
+    sliderDragging = true;
+  }, {passive:true});
+  slider.addEventListener('touchend', function(e) {
+    if (!sliderDragging || sliderImages.length <= 1) return;
+    var diff = sliderStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) slideMove(diff > 0 ? 1 : -1);
+    sliderDragging = false;
+  }, {passive:true});
 }
 
 function updateStickyBuy(id) {
