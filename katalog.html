@@ -44,7 +44,7 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .hbtn-badge { position:absolute; top:2px; right:2px; background:var(--red); color:#fff; font-size:8px; width:14px; height:14px; border-radius:50%; display:none; align-items:center; justify-content:center; font-family:'DM Mono',monospace; }
 
 /* ═══════════════════════════════
-   FILTER BAR (sticky below header)
+   FILTER BAR
 ═══════════════════════════════ */
 .filter-bar { background:var(--white); border-bottom:1px solid rgba(139,99,72,0.1); padding:0 16px; height:var(--bar-h); display:flex; align-items:center; gap:8px; position:sticky; top:var(--header-h); z-index:90; }
 .fbar-btn { display:flex; align-items:center; gap:6px; padding:8px 14px; border:1px solid rgba(139,99,72,0.25); background:transparent; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--clay); cursor:pointer; transition:all 0.2s; white-space:nowrap; }
@@ -55,20 +55,14 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .fbar-tags::-webkit-scrollbar { display:none; }
 .active-tag { display:flex; align-items:center; gap:4px; padding:4px 8px; background:rgba(139,99,72,0.1); border:1px solid rgba(139,99,72,0.2); font-size:8px; letter-spacing:0.1em; color:var(--clay); white-space:nowrap; cursor:pointer; flex-shrink:0; }
 .active-tag:hover { background:var(--clay); color:var(--cream); }
-.sort-select { font-family:'DM Mono',monospace; font-size:9px; color:var(--clay); background:transparent; border:1px solid rgba(139,99,72,0.25); padding:7px 24px 7px 10px; cursor:pointer; outline:none; appearance:none; letter-spacing:0.1em; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238B6348'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 8px center; }
 
 /* ═══════════════════════════════
-   MAIN CONTENT
+   MAIN CONTENT & GRID
 ═══════════════════════════════ */
 .main { padding:12px 12px 16px; }
 .results-info { font-size:9px; letter-spacing:0.12em; color:var(--dusty); margin-bottom:12px; }
 .results-info strong { color:var(--bark); }
-
-/* ═══════════════════════════════
-   PRODUCT GRID — 2 COLUMN
-═══════════════════════════════ */
 .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
-
 @media (min-width:640px) { .grid { grid-template-columns:repeat(3,1fr); } }
 @media (min-width:900px) { .grid { grid-template-columns:repeat(4,1fr); } }
 
@@ -81,7 +75,6 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .card:nth-child(3){animation-delay:.09s}.card:nth-child(4){animation-delay:.12s}
 .card:nth-child(5){animation-delay:.15s}.card:nth-child(6){animation-delay:.18s}
 .card:nth-child(7){animation-delay:.21s}.card:nth-child(8){animation-delay:.24s}
-.card:nth-child(9){animation-delay:.27s}.card:nth-child(10){animation-delay:.30s}
 
 .card-img { aspect-ratio:3/4; background:var(--linen); position:relative; overflow:hidden; }
 .card-img img { width:100%; height:100%; object-fit:cover; transition:transform 0.4s ease; }
@@ -89,21 +82,16 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .card-img-placeholder { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; opacity:0.3; }
 .card-img-placeholder span { font-size:28px; }
 .card-img-placeholder p { font-size:7px; letter-spacing:0.2em; color:var(--clay); text-transform:uppercase; }
-.card-img::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(45deg,rgba(139,99,72,0.03) 0px,rgba(139,99,72,0.03) 1px,transparent 1px,transparent 10px); pointer-events:none; z-index:1; }
-
 .card-badges { position:absolute; top:6px; left:6px; display:flex; flex-direction:column; gap:3px; z-index:3; }
 .cbadge { font-size:7px; letter-spacing:0.12em; text-transform:uppercase; padding:2px 6px; font-family:'DM Mono',monospace; }
 .cbadge-new { background:var(--bark); color:var(--sand); }
 .cbadge-titip { background:var(--sage); color:#fff; }
 .cbadge-sale { background:var(--red); color:#fff; }
-
 .card-wish { position:absolute; top:6px; right:6px; width:28px; height:28px; background:rgba(255,255,255,0.9); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; border-radius:50%; z-index:3; box-shadow:0 1px 4px rgba(0,0,0,0.1); transition:all 0.2s; }
 .card-wish:hover { transform:scale(1.1); }
 .card-wish svg { width:13px; height:13px; stroke:var(--dusty); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:all 0.2s; }
 .card-wish.wished svg { stroke:var(--red); fill:var(--red); }
-
 .card-kondisi { position:absolute; bottom:6px; left:6px; font-size:7px; letter-spacing:0.1em; text-transform:uppercase; background:rgba(247,241,232,0.92); padding:2px 6px; z-index:3; font-family:'DM Mono',monospace; }
-
 .card-body { padding:8px 10px 10px; }
 .card-brand { font-size:7px; letter-spacing:0.18em; color:var(--dusty); text-transform:uppercase; margin-bottom:2px; }
 .card-name { font-family:'Playfair Display',serif; font-size:12px; color:var(--bark); line-height:1.3; margin-bottom:6px; }
@@ -116,16 +104,12 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .card-cart.in-cart { background:var(--sage); }
 
 /* ═══════════════════════════════
-   EMPTY STATE
+   EMPTY STATE & LOADING
 ═══════════════════════════════ */
 .empty { grid-column:1/-1; text-align:center; padding:60px 24px; }
 .empty-icon { font-size:36px; margin-bottom:10px; }
 .empty-title { font-family:'Playfair Display',serif; font-size:18px; font-style:italic; color:var(--bark); margin-bottom:6px; }
 .empty-sub { font-size:9px; color:var(--dusty); letter-spacing:0.1em; }
-
-/* ═══════════════════════════════
-   LOADING
-═══════════════════════════════ */
 .loading { grid-column:1/-1; display:flex; justify-content:center; align-items:center; padding:60px; gap:6px; }
 .ldot { width:8px; height:8px; background:var(--clay); border-radius:50%; animation:ldot 1.2s ease infinite; }
 .ldot:nth-child(2){animation-delay:.2s}.ldot:nth-child(3){animation-delay:.4s}
@@ -140,17 +124,14 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .pgbtn:hover:not(.active) { background:var(--linen); }
 
 /* ═══════════════════════════════
-   OVERLAY (shared)
+   OVERLAY & DRAWERS
 ═══════════════════════════════ */
 .overlay { position:fixed; inset:0; background:rgba(44,31,20,0.5); z-index:200; opacity:0; pointer-events:none; transition:opacity 0.3s; backdrop-filter:blur(2px); }
 .overlay.show { opacity:1; pointer-events:all; }
 
-/* ═══════════════════════════════
-   FILTER DRAWER (from bottom)
-═══════════════════════════════ */
+/* Filter Drawer */
 .filter-drawer { position:fixed; left:0; right:0; bottom:0; z-index:300; background:var(--cream); transform:translateY(100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); max-height:85vh; display:flex; flex-direction:column; border-radius:16px 16px 0 0; box-shadow:0 -8px 32px rgba(44,31,20,0.15); }
 .filter-drawer.open { transform:translateY(0); }
-
 .fd-handle { width:36px; height:4px; background:rgba(139,99,72,0.25); border-radius:2px; margin:12px auto 0; flex-shrink:0; }
 .fd-header { padding:12px 20px 10px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(139,99,72,0.1); flex-shrink:0; }
 .fd-title { font-family:'Playfair Display',serif; font-size:16px; color:var(--bark); }
@@ -161,8 +142,6 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .fd-footer { padding:12px 20px 24px; border-top:1px solid rgba(139,99,72,0.1); flex-shrink:0; }
 .fd-apply { width:100%; background:var(--bark); color:var(--sand); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.22em; text-transform:uppercase; padding:14px; border:none; cursor:pointer; transition:background 0.2s; border-radius:2px; }
 .fd-apply:hover { background:var(--clay); }
-
-/* Filter sections inside drawer */
 .fd-section { margin-bottom:20px; }
 .fd-section-title { font-family:'Playfair Display',serif; font-size:13px; font-weight:700; color:var(--bark); margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid rgba(139,99,72,0.1); }
 .fd-option { display:flex; align-items:center; gap:10px; padding:6px 0; cursor:pointer; }
@@ -171,27 +150,19 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .fd-option input[type=checkbox]:checked::after { content:'✓'; position:absolute; top:-1px; left:1px; font-size:11px; color:#fff; }
 .fd-option label { font-size:12px; color:var(--soil); cursor:pointer; flex:1; }
 .fd-option .cnt { font-size:9px; color:var(--dusty); }
-
-/* Kondisi pills */
 .fd-kondisi { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
 .fd-kpill { padding:8px 10px; border:1px solid rgba(139,99,72,0.2); cursor:pointer; transition:all 0.2s; font-size:9px; letter-spacing:0.05em; color:var(--soil); display:flex; align-items:center; justify-content:space-between; }
 .fd-kpill.active, .fd-kpill:hover { background:var(--clay); color:var(--cream); border-color:var(--clay); }
 .kdot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
 .d-vvgc{background:#7A8C6E}.d-vgc{background:#C9A882}.d-gc{background:#B5A898}.d-gdc{background:#8B6348}
-
-/* Size picker — grid boxes */
 .fd-sizes { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; }
 .fd-size { padding:7px 4px; border:1px solid rgba(139,99,72,0.2); text-align:center; font-size:10px; cursor:pointer; transition:all 0.2s; color:var(--soil); }
 .fd-size.active, .fd-size:hover { background:var(--bark); color:var(--sand); border-color:var(--bark); }
-
-/* Price range */
 .fd-price-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .fd-price-input { border:1px solid rgba(139,99,72,0.25); padding:8px 10px; font-family:'DM Mono',monospace; font-size:10px; color:var(--bark); background:var(--white); width:100%; outline:none; }
 .fd-price-input:focus { border-color:var(--clay); }
 
-/* ═══════════════════════════════
-   SORT DRAWER (from bottom)
-═══════════════════════════════ */
+/* Sort Drawer */
 .sort-drawer { position:fixed; left:0; right:0; bottom:0; z-index:300; background:var(--cream); transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); border-radius:16px 16px 0 0; box-shadow:0 -8px 32px rgba(44,31,20,0.15); }
 .sort-drawer.open { transform:translateY(0); }
 .sort-option { padding:14px 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(139,99,72,0.08); cursor:pointer; font-size:13px; color:var(--bark); transition:background 0.2s; }
@@ -199,11 +170,9 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .sort-option.active { color:var(--clay); font-weight:500; }
 .sort-option .check { font-size:14px; color:var(--clay); }
 
-/* ═══════════════════════════════
-   CART DRAWER (from right)
-═══════════════════════════════ */
-.cart-drawer { position:fixed; right:0; top:0; bottom:0; width:min(380px,100vw); background:var(--cream); z-index:300; transform:translateX(100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); display:flex; flex-direction:column; }
-.cart-drawer.open { transform:translateX(0); }
+/* Cart & Wishlist Drawer */
+.cart-drawer, .wish-drawer { position:fixed; right:0; top:0; bottom:0; width:min(380px,100vw); background:var(--cream); z-index:300; transform:translateX(100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); display:flex; flex-direction:column; }
+.cart-drawer.open, .wish-drawer.open { transform:translateX(0); }
 .cd-header { padding:16px 20px; border-bottom:1px solid rgba(139,99,72,0.12); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
 .cd-title { font-family:'Playfair Display',serif; font-size:18px; font-style:italic; color:var(--bark); }
 .cd-close { background:none; border:none; font-size:20px; color:var(--clay); cursor:pointer; transition:transform 0.2s; }
@@ -231,12 +200,6 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .cd-checkout:hover { background:var(--clay); }
 
 /* ═══════════════════════════════
-   WISHLIST DRAWER
-═══════════════════════════════ */
-.wish-drawer { position:fixed; right:0; top:0; bottom:0; width:min(360px,100vw); background:var(--cream); z-index:300; transform:translateX(100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); display:flex; flex-direction:column; }
-.wish-drawer.open { transform:translateX(0); }
-
-/* ═══════════════════════════════
    PRODUCT DETAIL MODAL
 ═══════════════════════════════ */
 .modal-overlay { position:fixed; inset:0; background:rgba(44,31,20,0.6); z-index:400; opacity:0; pointer-events:none; transition:opacity 0.3s; }
@@ -249,12 +212,11 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .modal-scroll { overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
 
 /* ═══════════════════════════════
-   IMAGE SLIDER
+   PERBAIKAN: IMAGE SLIDER (NO JUMPING BUG)
 ═══════════════════════════════ */
 .slider { aspect-ratio:3/4; background:var(--linen); position:relative; overflow:hidden; touch-action:pan-y; max-height:75vh; }
-.slider-track { display:flex; height:100%; transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); will-change:transform; width: 100%; }
-.slider-slide { min-width:100%; height:100%; flex-shrink:0; display:flex; align-items:center; justify-content:center; position:relative; }
-/* PERBAIKAN: object-fit diubah ke contain agar gambar full frame proporsional */
+.slider-track { display:flex; height:100%; transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); will-change:transform; /* Lebar akan diatur via JS */ }
+.slider-slide { height:100%; flex-shrink:0; display:flex; align-items:center; justify-content:center; position:relative; /* Lebar akan diatur via JS */ }
 .slider-slide img { width:100%; height:100%; object-fit:contain; background-color:var(--linen); cursor:zoom-in; display:block; }
 .slider-placeholder { display:flex; flex-direction:column; align-items:center; gap:8px; opacity:0.3; }
 .slider-placeholder span { font-size:48px; }
@@ -268,12 +230,10 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .slider-prev svg, .slider-next svg { width:14px; height:14px; stroke:var(--clay); fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
 .slider-prev.hidden, .slider-next.hidden { display:none; }
 
-/* Dots */
+/* Dots & Counter */
 .slider-dots { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:5px; z-index:5; }
 .slider-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5); cursor:pointer; transition:all 0.2s; border:none; padding:0; }
 .slider-dot.active { background:#fff; width:18px; border-radius:3px; }
-
-/* Counter badge */
 .slider-counter { position:absolute; bottom:10px; right:10px; background:rgba(44,31,20,0.6); color:#fff; font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; padding:3px 7px; border-radius:10px; z-index:5; backdrop-filter:blur(4px); }
 
 /* Thumbnails */
@@ -284,8 +244,8 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .slider-thumb img { width:100%; height:100%; object-fit:cover; }
 .slider-thumb-placeholder { width:100%; height:100%; background:var(--cream); display:flex; align-items:center; justify-content:center; font-size:16px; opacity:0.5; }
 
+/* Modal Content Info */
 .modal-badges-row { position:absolute; top:12px; left:12px; display:flex; gap:4px; z-index:4; }
-.modal-img { display:none; }
 .modal-content { padding:16px 20px; }
 .modal-brand { font-size:9px; letter-spacing:0.22em; color:var(--dusty); text-transform:uppercase; margin-bottom:4px; }
 .modal-name { font-family:'Playfair Display',serif; font-size:22px; color:var(--bark); line-height:1.2; margin-bottom:10px; }
@@ -302,7 +262,7 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .modal-close-btn { position:absolute; top:12px; right:12px; width:32px; height:32px; background:rgba(255,255,255,0.9); border:none; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--clay); z-index:5; }
 
 /* ═══════════════════════════════
-   ZOOM LIGHTBOX
+   PERBAIKAN: ZOOM LIGHTBOX
 ═══════════════════════════════ */
 .zoom-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:1000; display:none; flex-direction:column; }
 .zoom-overlay.show { display:flex; }
@@ -311,8 +271,8 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .zoom-close { background:none; border:none; color:#fff; font-size:22px; cursor:pointer; padding:4px 8px; opacity:0.7; transition:opacity 0.2s; }
 .zoom-close:hover { opacity:1; }
 .zoom-body { flex:1; display:flex; align-items:stretch; position:relative; overflow:hidden; min-height:0; }
-.zoom-track { display:flex; width:100%; transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); align-items:stretch; }
-.zoom-slide { min-width:100vw; height:100%; display:flex; align-items:center; justify-content:center; padding:4px; }
+.zoom-track { display:flex; height:100%; transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); align-items:stretch; /* Lebar dikendalikan JS */ }
+.zoom-slide { height:100%; flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:4px; /* Lebar dikendalikan JS */ }
 .zoom-slide img { max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; cursor:zoom-in; transition:transform 0.3s ease; transform-origin:center center; user-select:none; -webkit-user-drag:none; }
 .zoom-slide img.zoomed { cursor:zoom-out; transform:scale(2.5); }
 .zoom-prev, .zoom-next { position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; background:rgba(255,255,255,0.1); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; border-radius:50%; z-index:5; transition:background 0.2s; color:#fff; font-size:18px; }
@@ -329,7 +289,7 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .zoom-hint { text-align:center; font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.15em; color:rgba(255,255,255,0.3); margin-top:8px; text-transform:uppercase; }
 
 /* ═══════════════════════════════
-   STICKY BUY BUTTON (fixed bottom)
+   STICKY BUY BUTTON
 ═══════════════════════════════ */
 .sticky-buy { position:fixed; bottom:0; left:0; right:0; z-index:350; padding:10px 16px 20px; background:linear-gradient(to top, rgba(247,241,232,1) 60%, transparent); display:none; }
 .sticky-buy.show { display:block; }
@@ -342,7 +302,7 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .sticky-cart-btn.in-cart { background:var(--sage); }
 
 /* ═══════════════════════════════
-   ORDER FORM — VERTICAL LAYOUT
+   ORDER FORM
 ═══════════════════════════════ */
 .order-overlay { position:fixed; inset:0; background:rgba(44,31,20,0.7); z-index:600; opacity:0; pointer-events:none; transition:opacity 0.3s; }
 .order-overlay.show { opacity:1; pointer-events:all; }
@@ -357,7 +317,6 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .order-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
 .order-scroll::-webkit-scrollbar { display:none; }
 
-/* Order summary */
 .order-summary { padding:14px 20px; background:var(--linen); }
 .order-summary-label { font-size:8px; letter-spacing:0.25em; color:var(--dusty); text-transform:uppercase; margin-bottom:10px; }
 .order-item-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; }
@@ -367,7 +326,6 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .order-total-label { font-size:9px; letter-spacing:0.15em; color:var(--clay); text-transform:uppercase; }
 .order-total-price { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--bark); }
 
-/* Vertical form sections */
 .form-sections { padding:0 20px 16px; }
 .form-section { padding:14px 0; border-bottom:1px solid rgba(139,99,72,0.08); }
 .form-section-title { font-size:9px; letter-spacing:0.22em; color:var(--dusty); text-transform:uppercase; margin-bottom:10px; }
@@ -386,12 +344,10 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .form-option.active .form-option-radio::after { content:''; position:absolute; width:6px; height:6px; background:var(--clay); border-radius:50%; top:50%; left:50%; transform:translate(-50%,-50%); }
 .form-option-label { font-size:11px; color:var(--bark); }
 
-/* Sticky order button */
 .order-footer { padding:12px 20px 24px; border-top:1px solid rgba(139,99,72,0.1); flex-shrink:0; background:var(--cream); }
 .order-submit { width:100%; background:var(--bark); color:var(--sand); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.22em; text-transform:uppercase; padding:14px; border:none; cursor:pointer; transition:background 0.2s; }
 .order-submit:hover { background:var(--clay); }
 
-/* Order success */
 .order-success { display:none; padding:48px 20px; text-align:center; }
 .order-success.show { display:block; }
 .order-success-icon { font-size:48px; margin-bottom:14px; }
@@ -593,7 +549,7 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
   </div>
 </div>
 
-<!-- STICKY BUY BUTTON (shows when modal open) -->
+<!-- STICKY BUY BUTTON -->
 <div class="sticky-buy" id="stickyBuy">
   <div class="sticky-buy-inner">
     <button class="sticky-wish-btn" id="stickyWishBtn" onclick="stickyToggleWish()">
@@ -614,7 +570,6 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
     </div>
     <div class="order-scroll">
       <div id="orderFormContent">
-        <!-- Order Summary -->
         <div class="order-summary">
           <div class="order-summary-label">✦ Ringkasan Pesanan</div>
           <div id="orderItems"></div>
@@ -625,7 +580,6 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
         </div>
 
         <div class="form-sections">
-          <!-- 1. ALAMAT -->
           <div class="form-section">
             <div class="form-section-title">📍 Alamat Pengiriman</div>
             <div class="form-row">
@@ -644,7 +598,6 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
             </div>
           </div>
 
-          <!-- 2. KURIR -->
           <div class="form-section">
             <div class="form-section-title">📦 Pilih Kurir</div>
             <div class="form-option-list" id="kurirList">
@@ -656,7 +609,6 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
             </div>
           </div>
 
-          <!-- 3. PEMBAYARAN -->
           <div class="form-section">
             <div class="form-section-title">💳 Metode Pembayaran</div>
             <div class="form-option-list" id="bayarList">
@@ -957,7 +909,7 @@ function openModal(id) {
   currentProductId=id;
   sliderIndex=0;
 
-  // Build images array — support single img or images array
+  // Build images array
   sliderImages = [];
   if (p.images && p.images.length) {
     sliderImages = p.images;
@@ -997,6 +949,8 @@ function openModal(id) {
   document.getElementById('stickyBuy').classList.add('show');
   document.body.style.overflow='hidden';
   updateStickyBuy(id);
+  
+  // Memasang event listener touch SEKALI saja saat dibuka, tanpa penumpukan
   initSliderTouch();
 }
 
@@ -1009,8 +963,8 @@ function renderSlider(p) {
   var nextBtn = document.getElementById('sliderNext');
 
   if (!sliderImages.length) {
-    // Placeholder
-    track.innerHTML = '<div class="slider-slide"><div class="slider-placeholder"><span>'+(CAT_ICON[p.cat]||'👗')+'</span><p>Foto Segera Hadir</p></div></div>';
+    track.style.width = '100%';
+    track.innerHTML = '<div class="slider-slide" style="width:100%"><div class="slider-placeholder"><span>'+(CAT_ICON[p.cat]||'👗')+'</span><p>Foto Segera Hadir</p></div></div>';
     dots.innerHTML = '';
     counter.style.display = 'none';
     thumbsWrap.style.display = 'none';
@@ -1019,12 +973,18 @@ function renderSlider(p) {
     return;
   }
 
-  // Build slides
+  // PENTING: Kalkulasi Lebar Flexbox Super Akurat Secara Dinamis agar Safari tidak nge-bug
+  track.style.width = (sliderImages.length * 100) + '%';
+
   track.innerHTML = sliderImages.map(function(src, i) {
-    return '<div class="slider-slide"><img src="'+src+'" alt="Foto '+(i+1)+'" loading="lazy" onclick="openZoom('+i+')"></div>';
+    // PENTING: Gambar pertama TIDAK BOLEH lazy-load agar langsung tampil ketika modal ditarik ke atas
+    var lazyAttr = (i === 0) ? '' : ' loading="lazy"';
+    var slideWidth = 100 / sliderImages.length;
+    return '<div class="slider-slide" style="width:' + slideWidth + '%">'
+      +'<img src="'+src+'" alt="Foto '+(i+1)+'"' + lazyAttr + ' onclick="openZoom('+i+')">'
+    +'</div>';
   }).join('');
 
-  // Dots (show if <= 8 images)
   if (sliderImages.length <= 8) {
     dots.innerHTML = sliderImages.map(function(_, i) {
       return '<button class="slider-dot'+(i===0?' active':'')+'" onclick="slideTo('+i+')"></button>';
@@ -1036,7 +996,6 @@ function renderSlider(p) {
     counter.textContent = '1 / ' + sliderImages.length;
   }
 
-  // Thumbnails (show if > 1)
   if (sliderImages.length > 1) {
     thumbsWrap.style.display = 'flex';
     thumbsWrap.innerHTML = sliderImages.map(function(src, i) {
@@ -1064,7 +1023,6 @@ function slideMove(dir) {
   slideTo(sliderIndex + dir);
 }
 
-// PERBAIKAN LOGIKA TRANSLATE & SCROLL THUMBNAIL
 function updateSliderUI() {
   var track = document.getElementById('sliderTrack');
   var dots = document.querySelectorAll('#sliderDots .slider-dot');
@@ -1073,7 +1031,7 @@ function updateSliderUI() {
   var prevBtn = document.getElementById('sliderPrev');
   var nextBtn = document.getElementById('sliderNext');
 
-  // Menggunakan persentase yang dinamis sesuai jumlah gambar agar tidak melompat jauh
+  // Kalkulasi perpindahan translateX yang 100% presisi untuk segala rasio browser
   var translatePct = sliderIndex * (100 / sliderImages.length);
   track.style.transform = 'translateX(-' + translatePct + '%)';
 
@@ -1083,14 +1041,12 @@ function updateSliderUI() {
   if (sliderImages.length > 1) {
     counter.textContent = (sliderIndex+1) + ' / ' + sliderImages.length;
     
-    // Matikan klik jika sudah di ujung
     prevBtn.style.opacity = sliderIndex === 0 ? '0.3' : '1';
     prevBtn.style.pointerEvents = sliderIndex === 0 ? 'none' : 'auto';
     
     nextBtn.style.opacity = sliderIndex === sliderImages.length - 1 ? '0.3' : '1';
     nextBtn.style.pointerEvents = sliderIndex === sliderImages.length - 1 ? 'none' : 'auto';
     
-    // Scroll otomatis pada thumbnail
     var thumbEl = thumbs[sliderIndex];
     if (thumbEl) {
         thumbEl.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
@@ -1098,13 +1054,10 @@ function updateSliderUI() {
   }
 }
 
-// PERBAIKAN LISTENER TOUCH AGAR TIDAK DOUBLE EVENT
+// PERBAIKAN: Gunakan .ontouchstart (bukan addEventListener) agar fungsi tidak double/menumpuk dan menyebabkan loncat!
 function initSliderTouch() {
   var slider = document.getElementById('modalSlider');
   
-  slider.ontouchstart = null;
-  slider.ontouchend = null;
-
   slider.ontouchstart = function(e) {
     sliderStartX = e.touches[0].clientX;
     sliderDragging = true;
@@ -1329,14 +1282,17 @@ function openZoom(startIdx) {
   var prevBtn = document.getElementById('zoomPrev');
   var nextBtn = document.getElementById('zoomNext');
 
-  // Build zoom slides
+  // Perbaikan lebar dinamis untuk Zoom Modal
+  track.style.width = (sliderImages.length * 100) + '%';
+  
   track.innerHTML = sliderImages.map(function(src, i) {
-    return '<div class="zoom-slide">'
-      +'<img src="'+src+'" alt="Foto '+(i+1)+'" onclick="toggleZoomImg(this)">'
+    var lazyAttr = (i === startIdx) ? '' : ' loading="lazy"';
+    var slideWidth = 100 / sliderImages.length;
+    return '<div class="zoom-slide" style="width:' + slideWidth + '%">'
+      +'<img src="'+src+'" alt="Foto '+(i+1)+'"' + lazyAttr + ' onclick="toggleZoomImg(this)">'
     +'</div>';
   }).join('');
 
-  // Build thumbnails
   if (sliderImages.length > 1) {
     thumbs.innerHTML = sliderImages.map(function(src, i) {
       return '<div class="zoom-thumb" onclick="zoomTo('+i+')">'
@@ -1368,21 +1324,19 @@ function zoomTo(i) {
   var thumbEls = document.querySelectorAll('.zoom-thumb');
   var imgEls = document.querySelectorAll('.zoom-slide img');
 
-  // Reset zoom on all images
   imgEls.forEach(function(img){ img.classList.remove('zoomed'); });
 
-  track.style.transform = 'translateX(-' + (zoomIndex * 100) + 'vw)';
+  var translatePct = zoomIndex * (100 / sliderImages.length);
+  track.style.transform = 'translateX(-' + translatePct + '%)';
+  
   counter.textContent = (zoomIndex+1) + ' / ' + sliderImages.length;
   thumbEls.forEach(function(t,i){ t.classList.toggle('active', i===zoomIndex); });
 
-  // Update hint
   document.getElementById('zoomHint').textContent = 'Tap foto untuk zoom · Geser untuk navigasi';
 
-  // Scroll thumb into view
   var thumbEl = thumbEls[zoomIndex];
   if (thumbEl) thumbEl.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
 
-  // Update prev/next opacity
   document.getElementById('zoomPrev').style.opacity = zoomIndex===0?'0.3':'1';
   document.getElementById('zoomNext').style.opacity = zoomIndex===sliderImages.length-1?'0.3':'1';
 }
@@ -1391,19 +1345,21 @@ function zoomMove(dir) { zoomTo(zoomIndex + dir); }
 
 function closeZoom() {
   document.getElementById('zoomOverlay').classList.remove('show');
-  document.body.style.overflow = 'hidden'; // keep modal scroll locked
+  document.body.style.overflow = 'hidden';
 }
 
+// PERBAIKAN: Touch listener untuk Zoom agar tidak bertumpuk
 function initZoomTouch() {
   var body = document.getElementById('zoomOverlay');
-  var startX = 0;
-  body.addEventListener('touchstart', function(e) {
-    startX = e.touches[0].clientX;
-  }, {passive:true});
-  body.addEventListener('touchend', function(e) {
-    var diff = startX - e.changedTouches[0].clientX;
+  
+  body.ontouchstart = function(e) {
+    zoomStartX = e.touches[0].clientX;
+  };
+  
+  body.ontouchend = function(e) {
+    var diff = zoomStartX - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 50 && sliderImages.length > 1) zoomMove(diff > 0 ? 1 : -1);
-  }, {passive:true});
+  };
 }
 
 // ── INIT ──
