@@ -250,6 +250,7 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .modal.show .modal-box { transform:translateY(0); }
 .modal-handle { width:36px; height:4px; background:rgba(139,99,72,0.25); border-radius:2px; margin:12px auto 0; flex-shrink:0; }
 .modal-scroll { overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+.modal-slider-wrap { display:flex; flex-direction:column; }
 /* ═══════════════════════════════
    IMAGE SLIDER — FIXED
 ═══════════════════════════════ */
@@ -269,8 +270,8 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 }
 
 .slider-slide {
-  width: 100vw;
-  flex: 0 0 100vw;
+  width: 100%;
+  flex: 0 0 100%;
   position: relative;
   line-height: 0;
 }
@@ -529,6 +530,117 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 .toast.success { background:var(--green); }
 .toast.error { background:var(--red); }
+
+/* ═══════════════════════════════
+   LANDSCAPE MODE (iPad miring)
+═══════════════════════════════ */
+@media (orientation: landscape) and (min-width: 600px) {
+
+  /* Modal jadi full screen split view */
+  .modal { align-items: stretch; }
+
+  .modal-box {
+    width: 100vw;
+    max-width: 100vw;
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
+    flex-direction: row;
+    overflow: hidden;
+  }
+
+  .modal-handle { display: none; }
+
+  /* Left: slider takes 50% */
+  .modal-slider-wrap {
+    width: 50%;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bark);
+    overflow: hidden;
+  }
+
+  /* Right: content scrollable */
+  .modal-scroll {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Slider fills left panel fully */
+  .slider {
+    flex: 1;
+    width: 100%;
+    height: 100% !important;
+    min-height: 0;
+  }
+
+  .slider-track {
+    height: 100%;
+  }
+
+  .slider-slide {
+    height: 100%;
+  }
+
+  .slider-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    background: var(--bark);
+  }
+
+  /* Thumbnails at bottom of left panel */
+  .slider-thumbs {
+    background: rgba(44,31,20,0.8);
+    padding: 6px 10px;
+    flex-shrink: 0;
+  }
+
+  .slider-thumb { width: 44px; height: 44px; }
+
+  /* Content area styling in landscape */
+  .modal-content {
+    padding: 20px 24px;
+    padding-bottom: 100px;
+  }
+
+  .modal-name { font-size: 20px; }
+  .modal-price { font-size: 22px; }
+
+  /* Sticky buy button in landscape */
+  .sticky-buy {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    right: 0;
+    width: 50%;
+    z-index: 360;
+    background: linear-gradient(to top, rgba(247,241,232,1) 60%, transparent);
+    padding: 10px 16px 16px;
+  }
+
+  /* Close button position in landscape */
+  .modal-close-btn {
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+  }
+
+  /* Dots inside slider left panel */
+  .slider-dots { bottom: 56px; }
+  .slider-counter { bottom: 56px; }
+  .slider-prev, .slider-next { top: 50%; }
+}
+
+/* Portrait stays exactly the same */
+@media (orientation: portrait) {
+  .modal-slider-wrap { width: 100%; }
+  .modal-box { flex-direction: column; }
+}
 </style>
 </head>
 <body>
@@ -691,8 +803,8 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
   <div class="modal-box">
     <div class="modal-handle"></div>
     <button class="modal-close-btn" onclick="closeModal()">✕</button>
-    <div class="modal-scroll">
-      <!-- SLIDER -->
+    <!-- LEFT: SLIDER PANEL -->
+    <div class="modal-slider-wrap" id="modalSliderWrap">
       <div class="slider" id="modalSlider">
         <div class="slider-track" id="sliderTrack"></div>
         <button class="slider-prev hidden" id="sliderPrev" onclick="slideMove(-1)">
@@ -707,7 +819,10 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
       </div>
       <!-- THUMBNAILS -->
       <div class="slider-thumbs" id="sliderThumbs" style="display:none"></div>
-      <!-- CONTENT -->
+    </div>
+
+    <!-- RIGHT: CONTENT SCROLL -->
+    <div class="modal-scroll">
       <div class="modal-content" id="modalContent"></div>
     </div>
   </div>
@@ -1188,8 +1303,9 @@ function updateSliderUI() {
   var track = document.getElementById('sliderTrack');
   if (!track) return;
 
-  // Use viewport width for accurate pixel positioning
-  var vw = window.innerWidth;
+  // Use slider container width for accurate positioning (handles landscape split)
+  var sliderEl = document.getElementById('modalSlider');
+  var vw = sliderEl ? sliderEl.offsetWidth : window.innerWidth;
   track.style.transform = 'translateX(-' + (sliderIndex * vw) + 'px)';
 
   document.querySelectorAll('.slider-dot').forEach(function(d,i){
@@ -1518,6 +1634,13 @@ function initZoomTouch() {
     if (Math.abs(diff) > 50 && sliderImages.length > 1) zoomMove(diff > 0 ? 1 : -1);
   }, {passive:true});
 }
+
+// Recalculate slider on orientation change
+window.addEventListener('orientationchange', function() {
+  setTimeout(function() {
+    if (sliderImages.length > 0) updateSliderUI();
+  }, 300);
+});
 
 // ── INIT ──
 updateCartUI();
