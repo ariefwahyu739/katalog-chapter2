@@ -255,40 +255,33 @@ body { background:var(--cream); font-family:'DM Mono',monospace; color:var(--bar
 ═══════════════════════════════ */
 .slider {
   width: 100%;
-  height: 100vw;
-  max-height: 500px;
-  min-height: 300px;
   position: relative;
-  overflow: hidden;
-  background: var(--bark);
+  background: var(--linen);
   touch-action: pan-y;
+  overflow: hidden;
 }
 
+/* Track overflows horizontally */
 .slider-track {
   display: flex;
-  width: 100%;
-  height: 100%;
   transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   will-change: transform;
 }
 
 .slider-slide {
-  width: 100%;
-  height: 100%;
-  flex: 0 0 100%;
-  min-width: 100%;
+  width: 100vw;
+  flex: 0 0 100vw;
   position: relative;
-  overflow: hidden;
+  line-height: 0;
 }
 
+/* Full width, natural height — no background, no crop */
 .slider-slide img {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
+  height: auto;
   display: block;
   cursor: zoom-in;
-  background: var(--bark);
+  line-height: 0;
 }
 
 .slider-placeholder {
@@ -1195,8 +1188,9 @@ function updateSliderUI() {
   var track = document.getElementById('sliderTrack');
   if (!track) return;
 
-  // % based - works because each slide is 100% wide
-  track.style.transform = 'translateX(-' + (sliderIndex * 100) + '%)';
+  // Use viewport width for accurate pixel positioning
+  var vw = window.innerWidth;
+  track.style.transform = 'translateX(-' + (sliderIndex * vw) + 'px)';
 
   document.querySelectorAll('.slider-dot').forEach(function(d,i){
     d.classList.toggle('active', i === sliderIndex);
@@ -1231,7 +1225,7 @@ function initSliderTouch() {
     if (sliderImages.length <= 1) return;
     var dx = sx - e.changedTouches[0].clientX;
     var dy = sy - e.changedTouches[0].clientY;
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
       slideMove(dx > 0 ? 1 : -1);
     }
   };
